@@ -1,12 +1,11 @@
 package com.suhang.keyboard
 
-import android.app.Instrumentation
 import android.content.Context
 import android.graphics.PixelFormat
-import android.support.v7.widget.CardView
 import android.view.*
-import android.view.WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-import android.view.WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+import android.view.WindowManager.LayoutParams.*
+import android.widget.Button
+import android.widget.TextView
 import com.suhang.keyboard.data.ButtonData
 import com.suhang.keyboard.utils.KeyHelper
 import kotlinx.android.synthetic.main.keyboard.view.*
@@ -47,21 +46,24 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
         }
         return false
     }
+
     //TODO 长按Shift  先Down,结束时Up
     override fun onClick(v: View) {
-        val c = (v.tag as Char)
-        val i = c.toInt()
-        if (c == 'x') {
-            KeyHelper.instance().shift()
-        } else if (c == 'y') {
-            KeyHelper.instance().capital()
-        }else if(c=='z') {
-            KeyHelper.instance().character(49)
-        }else if (c == 'v') {
-            KeyHelper.instance().ctrl()
-        } else {
-            KeyHelper.instance().character(i)
-        }
+        val s = (v as TextView).text
+        KeyHelper.instance().send(s.toString())
+//        val c = (v.tag as Char)
+//        val i = c.toInt()
+//        if (c == 'x') {
+//            KeyHelper.instance().shift()
+//        } else if (c == 'y') {
+//            KeyHelper.instance().capital()
+//        }else if(c=='z') {
+//            KeyHelper.instance().send(49)
+//        }else if (c == 'v') {
+//            KeyHelper.instance().ctrl()
+//        } else {
+//            KeyHelper.instance().send(i)
+//        }
 
     }
 
@@ -80,13 +82,28 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
         commonHeight = context.resources.getDimension(R.dimen.default_height).toInt()
         onEvent()
         mWm = context.applicationContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        for (i in 'a'..'z') {
-            val data = createButtonData()
-            data.botton.text = "$i"
-            data.botton.tag = i
-            views + data
-            mWm.addView(data, (data.tag as ButtonData).windowParam)
-        }
+
+
+        var data = createButtonData()
+        data.botton.text = "KEY"
+        views + data
+        mWm.addView(data, (data.tag as ButtonData).windowParam)
+        data = createButtonData()
+        data.botton.text = "SHL"
+        views + data
+        mWm.addView(data, (data.tag as ButtonData).windowParam)
+        data = createButtonData()
+        data.botton.text = "CAP"
+        views + data
+        mWm.addView(data, (data.tag as ButtonData).windowParam)
+        data = createButtonData()
+        data.botton.text = "1"
+        views + data
+        mWm.addView(data, (data.tag as ButtonData).windowParam)
+        data = createButtonData()
+        data.botton.text = "A"
+        views + data
+        mWm.addView(data, (data.tag as ButtonData).windowParam)
     }
 
     /**
@@ -108,6 +125,7 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
     fun getLayoutParam(): WindowManager.LayoutParams {
         val params = WindowManager.LayoutParams()
         params.type = WindowManager.LayoutParams.TYPE_TOAST
+        params.softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE or WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE
         params.flags = FLAG_NOT_TOUCH_MODAL or FLAG_NOT_FOCUSABLE
         // 设置图片格式，效果为背景透明
         params.format = PixelFormat.TRANSLUCENT
