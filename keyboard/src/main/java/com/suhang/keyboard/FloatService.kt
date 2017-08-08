@@ -4,6 +4,7 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
+import android.view.WindowManager
 import android.view.inputmethod.InputMethod.SHOW_FORCED
 import android.view.inputmethod.InputMethodManager
 import com.suhang.keyboard.event.KeyboardEvent
@@ -16,12 +17,13 @@ class FloatService : Service() {
         _, _, new ->
         FloatKeyboard.isEdit = new
     })
-
+    lateinit var mWm:WindowManager
     var listener:IShowKeyboard? = null
-
+    lateinit var keyboard:FloatKeyboard
     override fun onCreate() {
         super.onCreate()
-        FloatKeyboard(this)
+        keyboard = FloatKeyboard(this)
+        mWm = applicationContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -29,6 +31,10 @@ class FloatService : Service() {
     }
 
     val binder = object : IMove.Stub() {
+        override fun addKey(key: String) {
+            keyboard.addKey(key)
+        }
+
         override fun setOnShowListener(listener: IShowKeyboard?) {
             this@FloatService.listener = listener
         }

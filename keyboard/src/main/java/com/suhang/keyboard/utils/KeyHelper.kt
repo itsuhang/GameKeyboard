@@ -58,17 +58,10 @@ class KeyHelper private constructor() : AnkoLogger {
                 numlock()
             }
 
-            KeyMap.KEYBOARD -> {
-                showKeyboard()
-            }
-
             else -> {
                 sendKey(key)
             }
         }
-    }
-
-    private fun showKeyboard() {
     }
 
     fun sendKey(key: Int?) {

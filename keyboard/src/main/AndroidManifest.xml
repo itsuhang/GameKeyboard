@@ -2,8 +2,9 @@
 <manifest package="com.suhang.keyboard"
           xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
+          android:sharedUserId="com.suhang.test"
     >
-          <!--android:sharedUserId="com.suhang.test"-->
+
 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
@@ -20,7 +21,7 @@
         tools:ignore="HardcodedDebugMode">
         <activity
             android:name=".MainActivity"
-            android:process="com.suhang.activity">
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
@@ -33,7 +34,6 @@
             android:enabled="true"
             android:exported="true">
         </service>
-
     </application>
 
 </manifest>

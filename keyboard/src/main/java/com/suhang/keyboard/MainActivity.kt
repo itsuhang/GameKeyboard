@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.os.IBinder
 import android.support.v7.app.AppCompatActivity
 import android.view.inputmethod.InputMethodManager
+import com.suhang.keyboard.utils.KeyMap
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.info
@@ -15,7 +16,7 @@ import org.jetbrains.anko.startService
 
 
 class MainActivity : AppCompatActivity(), AnkoLogger {
-    lateinit var manager:InputMethodManager
+    lateinit var manager: InputMethodManager
     val connect = MyConnect()
     var move: IMove? = null
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,7 +35,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
 
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             move = IMove.Stub.asInterface(service)
-            move?.setOnShowListener(object :IShowKeyboard.Stub(){
+            move?.setOnShowListener(object : IShowKeyboard.Stub() {
                 override fun show() {
                     showKeyboard()
                 }
@@ -66,9 +67,11 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         }
 
         button.setOnClickListener {
+            move?.addKey(KeyMap.keyMap.keys.elementAt(0))
         }
 
         button2.setOnClickListener {
+            move?.addKey(KeyMap.keyMap.keys.elementAt(2))
         }
     }
 
