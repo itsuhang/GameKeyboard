@@ -33,7 +33,6 @@ class MoveFrameLayout : FrameLayout, AnkoLogger {
         disable.dispose()
     }
 
-
     override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
         when (ev?.action) {
             MotionEvent.ACTION_MOVE -> {

@@ -2,11 +2,7 @@ package com.suhang.keyboard.utils
 
 import android.app.Instrumentation
 import android.view.KeyEvent
-import com.suhang.keyboard.FloatService
-import com.suhang.keyboard.event.KeyboardEvent
-import com.suhang.networkmvp.function.rx.RxBusSingle
 import org.jetbrains.anko.AnkoLogger
-import org.jetbrains.anko.info
 import java.util.concurrent.Executors
 
 /**
@@ -20,6 +16,9 @@ class KeyHelper private constructor() : AnkoLogger {
         const val ALT_CODE = KeyEvent.KEYCODE_ALT_LEFT
         const val CAPLOCK_CODE = KeyEvent.KEYCODE_CAPS_LOCK
         const val NUMLOCK_CODE = KeyEvent.KEYCODE_NUM_LOCK
+        const val STATUS_NONE = -1
+        const val STATUS_ON = 1
+        const val STATUS_OFF = 0
         fun instance(): KeyHelper {
             return Holder.INSTANCE
         }
@@ -159,41 +158,47 @@ class KeyHelper private constructor() : AnkoLogger {
     private var isNum = false
     private val init = Instrumentation()
 
-    fun send(ch: String) {
+    fun send(ch: String):Int {
         val letter = ch.toUpperCase()
-        var key = KeyMap.keyMap["aaa"]
+        var key = KeyMap.keyMap[ch]
         if (key == null) {
             key = KeyMap.keySpecialMap[letter]
         }
         when (key) {
             KeyEvent.KEYCODE_SHIFT_LEFT -> {
-                shift(ch)
+                return shift(ch)
             }
             KeyEvent.KEYCODE_ALT_LEFT -> {
-                alt(ch)
+                return alt(ch)
             }
             KeyEvent.KEYCODE_CTRL_LEFT -> {
-                ctrl(ch)
+                return ctrl(ch)
             }
 
             KeyEvent.KEYCODE_CAPS_LOCK -> {
                 capital()
+                return if(isCap) STATUS_ON else STATUS_OFF
             }
 
             KeyEvent.KEYCODE_NUM_LOCK -> {
                 numlock()
+                return if(isNum) STATUS_ON else STATUS_OFF
             }
 
             else -> {
                 sendKey(key)
             }
         }
+        return STATUS_NONE
     }
 
     fun sendKey(key: Int?) {
         if (key != null) {
             pools.execute {
-                init.sendKeyDownUpSync(key)
+                try {
+                    init.sendKeyDownUpSync(key)
+                } catch (e: SecurityException) {
+                }
             }
         }
     }
@@ -202,31 +207,40 @@ class KeyHelper private constructor() : AnkoLogger {
     fun sendDownKey(key: Int) {
         val keyEventDown = KeyEvent(KeyEvent.ACTION_DOWN, key)
         pools.execute {
-            init.sendKeySync(keyEventDown)
+            try {
+                init.sendKeySync(keyEventDown)
+            } catch (e: SecurityException) {
+            }
         }
     }
 
     fun sendUpKey(key: Int) {
         val keyEventUp = KeyEvent(KeyEvent.ACTION_UP, key)
         pools.execute {
-            init.sendKeySync(keyEventUp)
+            try {
+                init.sendKeySync(keyEventUp)
+            } catch (e: SecurityException) {
+            }
         }
     }
 
-    fun shift(key: String) {
-        when (key) {
-            "SHT" -> {
+    fun shift(key: String):Int {
+        val k = key.toLowerCase()
+        when (k) {
+            "sht" -> {
                 sendKey(SHIFT_CODE)
             }
-            "SHL" -> {
+            "shl" -> {
                 if (isShift) {
                     sendUpKey(SHIFT_CODE)
                 } else {
                     sendDownKey(SHIFT_CODE)
                 }
                 isShift = !isShift
+                return if(isShift) STATUS_ON else STATUS_OFF
             }
         }
+        return STATUS_NONE
     }
 
     fun capital() {
@@ -239,36 +253,42 @@ class KeyHelper private constructor() : AnkoLogger {
         isNum = !isNum
     }
 
-    fun ctrl(key: String) {
-        when (key) {
-            "CTR" -> {
+    fun ctrl(key: String) :Int{
+        val k = key.toLowerCase()
+        when (k) {
+            "ctr" -> {
                 sendKey(CTRL_CODE)
             }
-            "CTL" -> {
+            "ctl" -> {
                 if (isCtrl) {
                     sendUpKey(CTRL_CODE)
                 } else {
                     sendDownKey(CTRL_CODE)
                 }
                 isCtrl = !isCtrl
+                return if(isCtrl) STATUS_ON else STATUS_OFF
             }
         }
+        return STATUS_NONE
     }
 
-    fun alt(key: String) {
-        when (key) {
-            "ALT" -> {
+    fun alt(key: String):Int {
+        val k = key.toLowerCase()
+        when (k) {
+            "alt" -> {
                 sendKey(ALT_CODE)
             }
-            "ALL" -> {
+            "all" -> {
                 if (isAlt) {
                     sendUpKey(ALT_CODE)
                 } else {
                     sendDownKey(ALT_CODE)
                 }
                 isAlt = !isAlt
+                return if(isAlt) STATUS_ON else STATUS_OFF
             }
         }
+        return STATUS_NONE
     }
 
 }

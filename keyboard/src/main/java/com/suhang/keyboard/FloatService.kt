@@ -5,14 +5,12 @@ import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 import android.view.WindowManager
-import android.view.inputmethod.InputMethod.SHOW_FORCED
-import android.view.inputmethod.InputMethodManager
-import com.suhang.keyboard.event.KeyboardEvent
-import com.suhang.networkmvp.function.rx.RxBusSingle
-import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlin.properties.Delegates
 
 class FloatService : Service() {
+    companion object{
+        var isCheck = false
+    }
     var isEdit by Delegates.observable(false, {
         _, _, new ->
         FloatKeyboard.isEdit = new
@@ -31,6 +29,10 @@ class FloatService : Service() {
     }
 
     val binder = object : IMove.Stub() {
+        override fun check(isChecked: Boolean) {
+            isCheck = isChecked
+        }
+
         override fun setVisible(isVisible: Boolean) {
             if (!isVisible) {
                 keyboard.transparent()

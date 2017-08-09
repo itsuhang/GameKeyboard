@@ -10,8 +10,10 @@ import android.os.IBinder
 import android.support.v7.app.AppCompatActivity
 import android.view.Gravity
 import android.view.inputmethod.InputMethodManager
-import com.suhang.keyboard.utils.KeyMap
+import com.suhang.keyboard.event.ClickEvent
+import com.suhang.keyboard.utils.SharedPrefUtil
 import com.suhang.keyboard.widget.SelectButtonPop
+import com.suhang.networkmvp.function.rx.RxBusSingle
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.contentView
@@ -19,6 +21,9 @@ import org.jetbrains.anko.startService
 
 
 class MainActivity : AppCompatActivity(), AnkoLogger {
+    companion object{
+        const val CHECK_STATUS:String = "check_status"
+    }
     lateinit var manager: InputMethodManager
     val connect = MyConnect()
     var move: IMove? = null
@@ -26,6 +31,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        checkBox.isChecked = SharedPrefUtil.getBoolean(CHECK_STATUS,false)
         pop = SelectButtonPop(this)
         manager = applicationContext.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         startService<FloatService>()
@@ -45,6 +51,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
 
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             move = IMove.Stub.asInterface(service)
+            move?.check(checkBox.isChecked)
             move?.setOnShowListener(object : IShowKeyboard.Stub() {
                 override fun show() {
                     showKeyboard()
@@ -58,6 +65,10 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     }
 
     fun initEvent() {
+        RxBusSingle.instance().toFlowable(ClickEvent::class.java).subscribe({
+            move?.addKey(it.text)
+            pop.dismiss()
+        })
         pop.setOnDismissListener {
             move?.setVisible(true)
         }
@@ -69,8 +80,12 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             }
         }
 
+        checkBox.setOnCheckedChangeListener { _, isChecked ->
+            SharedPrefUtil.putBoolean(CHECK_STATUS,isChecked)
+            move?.check(isChecked)
+        }
+
         button.setOnClickListener {
-            move?.addKey(KeyMap.keyMap.keys.elementAt(0))
         }
 
         button2.setOnClickListener {

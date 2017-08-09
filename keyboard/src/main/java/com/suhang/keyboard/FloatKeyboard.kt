@@ -9,6 +9,7 @@ import android.view.WindowManager
 import android.view.WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
+import android.widget.Toast
 import com.suhang.keyboard.data.ButtonData
 import com.suhang.keyboard.utils.KeyHelper
 import kotlinx.android.synthetic.main.keyboard.view.*
@@ -56,11 +57,26 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
     }
 
     override fun onClick(v: View) {
-        val s = (v as TextView).text
-        if ("KEY" == s.toString()) {
+        val view = (v as TextView)
+        var s = view.text.toString()
+        if ("KEY" == s) {
             showKeyboard()
+        } else {
+            val send = KeyHelper.instance().send(s)
+            var arrayList = views[s]
+            if (arrayList == null) {
+                s = s.toLowerCase()
+            }
+            arrayList = views[s]
+            arrayList?.forEach {
+                if (send == KeyHelper.STATUS_ON) {
+                    it.botton.text = s.toUpperCase()
+                } else if (send == KeyHelper.STATUS_OFF) {
+                    it.botton.text = s.toLowerCase()
+                }
+            }
+
         }
-        KeyHelper.instance().send(s.toString())
     }
 
     companion object {
@@ -70,8 +86,8 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
     }
 
     val mContext = context
-    val datas = ArrayList<ButtonData>()
-    val views = ArrayList<View>()
+    val datas = HashMap<String, ButtonData>()
+    val views = HashMap<String, ArrayList<View>>()
     val mWm: WindowManager
 
     init {
@@ -79,44 +95,43 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
         commonHeight = context.resources.getDimension(R.dimen.default_height).toInt()
         onEvent()
         mWm = context.applicationContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-
-        addKey("KEY")
-        addKey("SHL")
-        addKey("CAP")
-        addKey("1")
-        addKey("A")
     }
 
     fun addKey(key: String) {
         val data = createButtonData(key)
-        mWm.addView(data, data.tag as WindowManager.LayoutParams)
+        data?.let {
+            mWm.addView(data, data.tag as WindowManager.LayoutParams)
+        }
     }
-
 
     private fun showKeyboard() {
         (mContext.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS)
     }
 
     fun transparent() {
-        views.forEach {
-            val view = it
-            view.tag?.let {
-                val param = it as WindowManager.LayoutParams
-                param.alpha = 0f
-                param.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                mWm.updateViewLayout(view,param)
+        views.values.forEach {
+            it.forEach {
+                val view = it
+                view.tag?.let {
+                    val param = it as WindowManager.LayoutParams
+                    param.alpha = 0f
+                    param.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                    mWm.updateViewLayout(view, param)
+                }
             }
         }
     }
 
     fun untransparent() {
-        views.forEach {
-            val view = it
-            view.tag?.let {
-                val param = it as WindowManager.LayoutParams
-                param.alpha = 1.0f
-                param.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                mWm.updateViewLayout(view,param)
+        views.values.forEach {
+            it.forEach {
+                val view = it
+                view.tag?.let {
+                    val param = it as WindowManager.LayoutParams
+                    param.alpha = 1.0f
+                    param.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                    mWm.updateViewLayout(view, param)
+                }
             }
         }
     }
@@ -124,7 +139,11 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
     /**
      * 创建按钮数据
      */
-    fun createButtonData(key: String): View {
+    fun createButtonData(key: String): View? {
+        if (datas[key] != null && !FloatService.isCheck) {
+            Toast.makeText(mContext, "按键重复添加!!!", Toast.LENGTH_SHORT).show()
+            return null
+        }
         val buttonData = ButtonData(key, commonWidth, commonHeight, 0, 0)
         val button = View.inflate(mContext, R.layout.keyboard, null)
         info(button.width)
@@ -133,8 +152,13 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
         button.setOnTouchListener(this)
         button.tag = getLayoutParam()
         button.setTag(R.id.data, buttonData)
-        datas.add(buttonData)
-        views.add(button)
+        datas.put(key, buttonData)
+        var array = views[key]
+        if (array == null) {
+            array = ArrayList()
+        }
+        array.add(button)
+        views.put(key, array)
         return button
     }
 
@@ -144,7 +168,7 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
      */
     fun getLayoutParam(): WindowManager.LayoutParams {
         val params = WindowManager.LayoutParams()
-        params.type = WindowManager.LayoutParams.TYPE_TOAST
+        params.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
         params.softInputMode = WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE
         params.flags = FLAG_NOT_FOCUSABLE
         // 设置图片格式，效果为背景透明
