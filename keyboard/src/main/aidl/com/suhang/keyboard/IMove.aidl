@@ -9,4 +9,5 @@ interface IMove {
     boolean isEdit();
     void setOnShowListener(in IShowKeyboard listener);
     void addKey(in String key);
+    void setVisible(in boolean isVisible);
 }

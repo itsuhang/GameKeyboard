@@ -71,6 +71,7 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
 
     val mContext = context
     val datas = ArrayList<ButtonData>()
+    val views = ArrayList<View>()
     val mWm: WindowManager
 
     init {
@@ -96,6 +97,30 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
         (mContext.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS)
     }
 
+    fun transparent() {
+        views.forEach {
+            val view = it
+            view.tag?.let {
+                val param = it as WindowManager.LayoutParams
+                param.alpha = 0f
+                param.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                mWm.updateViewLayout(view,param)
+            }
+        }
+    }
+
+    fun untransparent() {
+        views.forEach {
+            val view = it
+            view.tag?.let {
+                val param = it as WindowManager.LayoutParams
+                param.alpha = 1.0f
+                param.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                mWm.updateViewLayout(view,param)
+            }
+        }
+    }
+
     /**
      * 创建按钮数据
      */
@@ -109,6 +134,7 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
         button.tag = getLayoutParam()
         button.setTag(R.id.data, buttonData)
         datas.add(buttonData)
+        views.add(button)
         return button
     }
 

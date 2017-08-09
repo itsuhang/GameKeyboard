@@ -9,7 +9,9 @@ import android.view.KeyEvent
 class KeyMap {
     companion object {
         val keyMap = ArrayMap<String, Int>()
+        val keySpecialMap = ArrayMap<String, Int>()
         const val KEYBOARD = 9999
+
         init {
             keyMap.run {
                 put("a", KeyEvent.KEYCODE_A)
@@ -87,7 +89,6 @@ class KeyMap {
                 put("]", KeyEvent.KEYCODE_RIGHT_BRACKET)
                 put(";", KeyEvent.KEYCODE_PERIOD)
                 put("'", KeyEvent.KEYCODE_PERIOD)
-                put("SPA", KeyEvent.KEYCODE_SPACE)
                 put("N1", KeyEvent.KEYCODE_NUMPAD_1)
                 put("N2", KeyEvent.KEYCODE_NUMPAD_2)
                 put("N3", KeyEvent.KEYCODE_NUMPAD_3)
@@ -98,7 +99,6 @@ class KeyMap {
                 put("N8", KeyEvent.KEYCODE_NUMPAD_8)
                 put("N9", KeyEvent.KEYCODE_NUMPAD_9)
                 put("N0", KeyEvent.KEYCODE_NUMPAD_0)
-
 
 
                 put("N+", KeyEvent.KEYCODE_NUMPAD_ADD)
@@ -125,6 +125,7 @@ class KeyMap {
                 put("F12", KeyEvent.KEYCODE_F12)
 
 
+                put("SPA", KeyEvent.KEYCODE_SPACE)
                 put("ETN", KeyEvent.KEYCODE_ENTER)
                 put("ESC", KeyEvent.KEYCODE_ESCAPE)
                 put("↑", KeyEvent.KEYCODE_DPAD_UP)
@@ -134,10 +135,8 @@ class KeyMap {
                 put("DEL", KeyEvent.KEYCODE_DEL)
                 put("BAC", KeyEvent.KEYCODE_DEL)
                 //键盘锁
-                put("NLC", KeyEvent.KEYCODE_NUM_LOCK)
                 put("nlc", KeyEvent.KEYCODE_NUM_LOCK)
                 //大小写锁
-                put("CAP", KeyEvent.KEYCODE_CAPS_LOCK)
                 put("cap", KeyEvent.KEYCODE_CAPS_LOCK)
                 put("TAB", KeyEvent.KEYCODE_TAB)
                 put("INS", KeyEvent.KEYCODE_INSERT)
@@ -146,15 +145,19 @@ class KeyMap {
                 put("HOM", KeyEvent.KEYCODE_MOVE_HOME)
                 put("END", KeyEvent.KEYCODE_MOVE_END)
                 put("ALT", KeyEvent.KEYCODE_ALT_LEFT)
-                put("ALL", KeyEvent.KEYCODE_ALT_LEFT)
                 put("all", KeyEvent.KEYCODE_ALT_LEFT)
                 put("SHT", KeyEvent.KEYCODE_SHIFT_LEFT)
-                put("SHL", KeyEvent.KEYCODE_SHIFT_LEFT)
                 put("shl", KeyEvent.KEYCODE_SHIFT_LEFT)
                 put("CTR", KeyEvent.KEYCODE_CTRL_LEFT)
-                put("CTL", KeyEvent.KEYCODE_CTRL_LEFT)
                 put("ctl", KeyEvent.KEYCODE_CTRL_LEFT)
                 put("KEY", KEYBOARD)
+            }
+            keySpecialMap.run {
+                put("NLC", KeyEvent.KEYCODE_NUM_LOCK)
+                put("ALL", KeyEvent.KEYCODE_ALT_LEFT)
+                put("CAP", KeyEvent.KEYCODE_CAPS_LOCK)
+                put("SHL", KeyEvent.KEYCODE_SHIFT_LEFT)
+                put("CTL", KeyEvent.KEYCODE_CTRL_LEFT)
             }
         }
     }

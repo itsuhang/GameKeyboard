@@ -10,7 +10,5 @@ import com.suhang.networkmvp.function.rx.RxBusSingle
 class App:Application() {
     override fun onCreate() {
         super.onCreate()
-        RxBusSingle.instance().toFlowable(KeyboardEvent::class.java).subscribe({
-        })
     }
 }

@@ -31,6 +31,14 @@ class FloatService : Service() {
     }
 
     val binder = object : IMove.Stub() {
+        override fun setVisible(isVisible: Boolean) {
+            if (!isVisible) {
+                keyboard.transparent()
+            } else {
+                keyboard.untransparent()
+            }
+        }
+
         override fun addKey(key: String) {
             keyboard.addKey(key)
         }

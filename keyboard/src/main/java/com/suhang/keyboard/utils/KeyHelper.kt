@@ -23,6 +23,128 @@ class KeyHelper private constructor() : AnkoLogger {
         fun instance(): KeyHelper {
             return Holder.INSTANCE
         }
+
+
+        fun getDesc(key: String): String {
+            var desc = ""
+            when (key) {
+                "SPA" -> {
+                    desc = "空格"
+                }
+                "N1" -> {
+                    desc = "小键盘1"
+                }
+                "N2" -> {
+                    desc = "小键盘2"
+                }
+                "N3" -> {
+                    desc = "小键盘3"
+                }
+                "N4" -> {
+                    desc = "小键盘4"
+                }
+                "N5" -> {
+                    desc = "小键盘5"
+                }
+                "N6" -> {
+                    desc = "小键盘6"
+                }
+                "N7" -> {
+                    desc = "小键盘7"
+                }
+                "N8" -> {
+                    desc = "小键盘8"
+                }
+                "N9" -> {
+                    desc = "小键盘9"
+                }
+                "N0" -> {
+                    desc = "小键盘0"
+                }
+                "N+" -> {
+                    desc = "小键盘+"
+                }
+                "N-" -> {
+                    desc = "小键盘-"
+                }
+                "N*" -> {
+                    desc = "小键盘*"
+                }
+                "N/" -> {
+                    desc = "小键盘/"
+                }
+                "N=" -> {
+                    desc = "小键盘="
+                }
+                "N," -> {
+                    desc = "小键盘,"
+                }
+                "N." -> {
+                    desc = "小键盘."
+                }
+                "N(" -> {
+                    desc = "小键盘("
+                }
+                "N)" -> {
+                    desc = "小键盘)"
+                }
+                "NET" -> {
+                    desc = "小键盘回车"
+                }
+                "ETN" -> {
+                    desc = "回车"
+                }
+                "DEL" -> {
+                    desc = "Delete键"
+                }
+
+                "BAC" -> {
+                    desc = "Backspace键"
+                }
+
+                "nlc" -> {
+                    desc = "小键盘锁"
+                }
+                "cap" -> {
+                    desc = "大小写锁"
+                }
+                "INS" -> {
+                    desc = "Insert键"
+                }
+                "PUP" -> {
+                    desc = "PgUp键"
+                }
+                "PDW" -> {
+                    desc = "PgDn键"
+                }
+                "HOM" -> {
+                    desc = "Home键"
+                }
+                "all" -> {
+                    desc = "Alt锁"
+                }
+                "shl" -> {
+                    desc = "Shift锁"
+                }
+                "ctl" -> {
+                    desc = "Ctrl锁"
+                }
+                "ALT" -> {
+                    desc = "单击Alt键"
+                }
+                "SHT" -> {
+                    desc = "单击Shift"
+                }
+                "CTR" -> {
+                    desc = "单击Ctrl"
+                }
+                "KEY" -> {
+                    desc = "唤起软键盘"
+                }
+
+            }
+            return desc
+        }
     }
 
     private object Holder {
@@ -38,7 +160,11 @@ class KeyHelper private constructor() : AnkoLogger {
     private val init = Instrumentation()
 
     fun send(ch: String) {
-        val key = KeyMap.keyMap[ch]
+        val letter = ch.toUpperCase()
+        var key = KeyMap.keyMap["aaa"]
+        if (key == null) {
+            key = KeyMap.keySpecialMap[letter]
+        }
         when (key) {
             KeyEvent.KEYCODE_SHIFT_LEFT -> {
                 shift(ch)
@@ -143,125 +269,6 @@ class KeyHelper private constructor() : AnkoLogger {
                 isAlt = !isAlt
             }
         }
-    }
-
-
-    fun getDesc(key: String): String {
-        var desc = ""
-        when (key) {
-            "SPA" -> {
-                desc = "空格"
-            }
-            "N1" -> {
-                desc = "小键盘1"
-            }
-            "N2" -> {
-                desc = "小键盘2"
-            }
-            "N3" -> {
-                desc = "小键盘3"
-            }
-            "N4" -> {
-                desc = "小键盘4"
-            }
-            "N5" -> {
-                desc = "小键盘5"
-            }
-            "N6" -> {
-                desc = "小键盘6"
-            }
-            "N7" -> {
-                desc = "小键盘7"
-            }
-            "N8" -> {
-                desc = "小键盘8"
-            }
-            "N9" -> {
-                desc = "小键盘9"
-            }
-            "N0" -> {
-                desc = "小键盘0"
-            }
-            "N+" -> {
-                desc = "小键盘+"
-            }
-            "N-" -> {
-                desc = "小键盘-"
-            }
-            "N*" -> {
-                desc = "小键盘*"
-            }
-            "N/" -> {
-                desc = "小键盘/"
-            }
-            "N," -> {
-                desc = "小键盘,"
-            }
-            "N." -> {
-                desc = "小键盘."
-            }
-            "N(" -> {
-                desc = "小键盘("
-            }
-            "N)" -> {
-                desc = "小键盘)"
-            }
-            "NET" -> {
-                desc = "小键盘回车"
-            }
-            "ETN" -> {
-                desc = "回车"
-            }
-            "DEL" -> {
-                desc = "Delete键"
-            }
-
-            "BAC" -> {
-                desc = "Backspace键"
-            }
-
-            "NLC" -> {
-                desc = "小键盘锁"
-            }
-            "CAP" -> {
-                desc = "大小写锁"
-            }
-            "INS" -> {
-                desc = "Insert键"
-            }
-            "PUP" -> {
-                desc = "PgUp键"
-            }
-            "PDW" -> {
-                desc = "PgDn键"
-            }
-            "HOM" -> {
-                desc = "Home键"
-            }
-            "ALL" -> {
-                desc = "Alt锁"
-            }
-            "SHL" -> {
-                desc = "Shift锁"
-            }
-            "CTL" -> {
-                desc = "Ctrl锁"
-            }
-            "ALT" -> {
-                desc = "单击Alt键"
-            }
-            "SHT" -> {
-                desc = "单击Shift"
-            }
-            "CTR" -> {
-                desc = "单击Ctrl"
-            }
-            "KEY" -> {
-                desc = "唤起软键盘"
-            }
-
-        }
-        return desc
     }
 
 }

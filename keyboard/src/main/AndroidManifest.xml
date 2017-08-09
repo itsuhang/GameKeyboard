@@ -2,8 +2,8 @@
 <manifest package="com.suhang.keyboard"
           xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
-          android:sharedUserId="com.suhang.test"
     >
+          <!--android:sharedUserId="com.suhang.test"-->
 
 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
@@ -20,6 +20,7 @@
         android:theme="@style/AppTheme"
         tools:ignore="HardcodedDebugMode">
         <activity
+            android:configChanges="orientation|screenSize|keyboardHidden"
             android:name=".MainActivity"
             >
             <intent-filter>
