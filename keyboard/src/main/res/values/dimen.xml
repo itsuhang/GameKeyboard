@@ -2,6 +2,6 @@
 <resources>
     <dimen name="default_width">40dp</dimen>
     <dimen name="default_height">40dp</dimen>
-    <dimen name="default_radius">20dp</dimen>
+    <dimen name="default_radius">2dp</dimen>
 
 </resources>

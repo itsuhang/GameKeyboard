@@ -29,7 +29,7 @@
                 android:layout_marginBottom="8dp"
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"
-                app:layout_constraintBottom_toTopOf="@+id/textView4"
+                app:layout_constraintBottom_toTopOf="@+id/textView3"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"/>
 
@@ -48,41 +48,25 @@
                 app:layout_constraintTop_toTopOf="@+id/textView3"
                 app:layout_constraintVertical_bias="0.5"/>
 
-            <com.larswerkman.holocolorpicker.OpacityBar
-                android:id="@+id/opacitybar"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="0dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginTop="0dp"
-                app:layout_constraintBottom_toBottomOf="@+id/textView4"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintLeft_toRightOf="@+id/textView4"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/textView4"
-                app:layout_constraintVertical_bias="0.545"/>
-
-
             <android.support.v7.widget.CardView
                 android:id="@+id/button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 app:cardCornerRadius="@dimen/default_radius"
                 app:cardElevation="4dp"
+                app:layout_constraintLeft_toRightOf="@+id/btn_cancel"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                android:layout_marginBottom="8dp"
-                android:background="@color/black"
+                app:layout_constraintRight_toLeftOf="btn_changekey"
                 >
 
                 <com.suhang.keyboard.widget.MoveButton
                     android:id="@+id/txt_button"
-                    android:text="OK"
-                    android:gravity="center"
                     android:layout_width="@dimen/default_width"
                     android:layout_height="@dimen/default_height"
+                    android:gravity="center"
+                    android:text="OK"
                     />
             </android.support.v7.widget.CardView>
 
@@ -95,17 +79,6 @@
                 android:text="透明度(颜色)"
                 android:textColor="@color/black"
                 app:layout_constraintBottom_toTopOf="@+id/textView5"
-                app:layout_constraintLeft_toLeftOf="parent"/>
-
-            <TextView
-                android:id="@+id/textView4"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:layout_marginLeft="8dp"
-                android:text="饱和度"
-                android:textColor="@color/black"
-                app:layout_constraintBottom_toTopOf="@+id/textView3"
                 app:layout_constraintLeft_toLeftOf="parent"/>
 
             <SeekBar
@@ -153,12 +126,12 @@
                 android:id="@+id/textView5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
                 android:layout_marginLeft="8dp"
                 android:text="按键大小"
                 android:textColor="@color/black"
-                app:layout_constraintLeft_toLeftOf="parent"
-                android:layout_marginBottom="16dp"
-                app:layout_constraintBottom_toTopOf="@+id/textView10"/>
+                app:layout_constraintBottom_toTopOf="@+id/textView10"
+                app:layout_constraintLeft_toLeftOf="parent"/>
 
             <SeekBar
                 android:id="@+id/sb_buttonsize"
@@ -193,12 +166,12 @@
                 android:id="@+id/textView7"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
                 android:layout_marginLeft="8dp"
                 android:text="按钮形状"
                 android:textColor="@color/black"
-                app:layout_constraintBottom_toTopOf="@+id/textView8"
-                app:layout_constraintLeft_toLeftOf="parent"/>
+                app:layout_constraintLeft_toLeftOf="parent"
+                android:layout_marginBottom="8dp"
+                app:layout_constraintBottom_toTopOf="@+id/button"/>
 
             <CheckBox
                 android:id="@+id/cb_circle"
@@ -225,46 +198,15 @@
                 app:layout_constraintTop_toTopOf="@+id/textView7"/>
 
             <TextView
-                android:id="@+id/textView8"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                android:layout_marginLeft="8dp"
-                android:text="KEY"
-                android:textColor="@color/black"
-                app:layout_constraintBottom_toTopOf="@+id/button"
-                app:layout_constraintLeft_toLeftOf="parent"/>
-
-            <android.support.v7.widget.CardView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                app:cardCornerRadius="4dp"
-                app:cardElevation="4dp"
-                app:layout_constraintBottom_toBottomOf="@+id/textView8"
-                app:layout_constraintLeft_toRightOf="@+id/textView8"
-                app:layout_constraintTop_toTopOf="@+id/textView8">
-
-                <TextView
-                    android:id="@+id/btn_changekey"
-                    android:layout_width="80dp"
-                    android:layout_height="30dp"
-                    android:gravity="center"
-                    android:text="更换按键"
-                    android:textColor="@color/black"
-                    />
-            </android.support.v7.widget.CardView>
-
-            <TextView
                 android:id="@+id/textView10"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:layout_marginLeft="8dp"
                 android:text="字体大小"
                 android:textColor="@color/black"
-                android:layout_marginLeft="8dp"
-                app:layout_constraintLeft_toLeftOf="parent"
-                android:layout_marginBottom="16dp"
-                app:layout_constraintBottom_toTopOf="@+id/textView"/>
+                app:layout_constraintBottom_toTopOf="@+id/textView"
+                app:layout_constraintLeft_toLeftOf="parent"/>
 
             <SeekBar
                 android:id="@+id/sb_fontsize"
@@ -305,7 +247,22 @@
                 android:text="取消"
                 app:layout_constraintBottom_toBottomOf="@+id/button"
                 app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toLeftOf="@+id/button"
+                app:layout_constraintTop_toTopOf="@+id/button"/>
+
+            <TextView
+                android:id="@+id/btn_changekey"
+                android:layout_width="80dp"
+                android:layout_height="30dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginLeft="0dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:text="更换按键"
+                android:textColor="@color/black"
+                app:layout_constraintBottom_toBottomOf="@+id/button"
+                app:layout_constraintLeft_toRightOf="@+id/button"
+                app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/button"/>
         </android.support.constraint.ConstraintLayout>
     </android.support.v7.widget.CardView>

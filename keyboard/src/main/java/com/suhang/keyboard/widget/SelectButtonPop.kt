@@ -15,12 +15,15 @@ import org.jetbrains.anko.dip
 /**
  * Created by 苏杭 on 2017/8/9 20:33.
  */
-class SelectButtonPop(activity: Activity) : PopupWindow() {
+class SelectButtonPop(activity: Activity,type:Int) : PopupWindow() {
     val mActivity = activity
     val root = View.inflate(activity, R.layout.select_button_pop_layout, null)
     val manager = GridLayoutManager(activity, 7, GridLayoutManager.VERTICAL, false)
-    val adapter = SelectButtonAdapter()
-
+    val adapter = SelectButtonAdapter(type)
+    companion object{
+        const val STATUS_ONE = 1
+        const val STATUS_TWO = 2
+    }
     init {
         root.rv.adapter = adapter
         root.rv.layoutManager = manager

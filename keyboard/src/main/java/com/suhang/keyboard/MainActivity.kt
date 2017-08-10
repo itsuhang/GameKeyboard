@@ -12,10 +12,13 @@ import android.view.Gravity
 import android.view.inputmethod.InputMethodManager
 import com.suhang.keyboard.constants.Constant
 import com.suhang.keyboard.event.ClickEvent
+import com.suhang.keyboard.event.InViewEvent
+import com.suhang.keyboard.event.OutViewEvent
 import com.suhang.keyboard.utils.SharedPrefUtil
 import com.suhang.keyboard.widget.ColorPickerPop
 import com.suhang.keyboard.widget.SelectButtonPop
 import com.suhang.networkmvp.function.rx.RxBusSingle
+import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.contentView
@@ -26,14 +29,13 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     lateinit var manager: InputMethodManager
     val connect = MyConnect()
     var move: IMove? = null
-    lateinit var pop:SelectButtonPop
-    lateinit var colorPop:ColorPickerPop
+    lateinit var pop: SelectButtonPop
+    var colorPop: ColorPickerPop? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        checkBox.isChecked = SharedPrefUtil.getBoolean(Constant.CHECK_STATUS,false)
-        pop = SelectButtonPop(this)
-        colorPop = ColorPickerPop(this)
+        checkBox.isChecked = SharedPrefUtil.getBoolean(Constant.CHECK_STATUS, false)
+        pop = SelectButtonPop(this,SelectButtonPop.STATUS_ONE)
         manager = applicationContext.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         startService<FloatService>()
         val intent = Intent(this, FloatService::class.java)
@@ -53,27 +55,25 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             move = IMove.Stub.asInterface(service)
             move?.check(checkBox.isChecked)
-            move?.setOnShowListener(object : IShowKeyboard.Stub() {
-                override fun show() {
-                    showKeyboard()
-                }
-            })
         }
     }
 
-    fun showKeyboard() {
-        manager.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS)
-    }
-
+    var viewEvent: Disposable? = null
+    var clickEvent: Disposable? = null
     fun initEvent() {
-        RxBusSingle.instance().toFlowable(ClickEvent::class.java).subscribe({
+        viewEvent = RxBusSingle.instance().toFlowable(InViewEvent::class.java).subscribe({
+            colorPop = ColorPickerPop(this, it.view)
+            move?.setVisible(false)
+            colorPop?.showAtLocation(contentView, Gravity.TOP, 0, 0)
+            colorPop?.setOnDismissListener {
+                move?.setVisible(true)
+            }
+        })
+        clickEvent = RxBusSingle.instance().toFlowable(ClickEvent::class.java).subscribe({
             move?.addKey(it.text)
             pop.dismiss()
         })
         pop.setOnDismissListener {
-            move?.setVisible(true)
-        }
-        colorPop.setOnDismissListener {
             move?.setVisible(true)
         }
         btn_edit.setOnClickListener {
@@ -85,13 +85,8 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         }
 
         checkBox.setOnCheckedChangeListener { _, isChecked ->
-            SharedPrefUtil.putBoolean(Constant.CHECK_STATUS,isChecked)
+            SharedPrefUtil.putBoolean(Constant.CHECK_STATUS, isChecked)
             move?.check(isChecked)
-        }
-
-        btn_test.setOnClickListener {
-            move?.setVisible(false)
-            colorPop.showAtLocation(contentView,Gravity.BOTTOM,0,0)
         }
 
         btn_add.setOnClickListener {
@@ -102,14 +97,17 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         btn_close.setOnClickListener {
             val intent = Intent(this, FloatService::class.java)
             stopService(intent)
+            move?.destory()
             finish()
         }
     }
 
     override fun onBackPressed() {
-        if (pop.isShowing or colorPop.isShowing) {
+        val color:ColorPickerPop? = colorPop
+        if (pop.isShowing) {
             pop.dismiss()
-            colorPop.dismiss()
+        } else if (color != null && color.isShowing) {
+            color.dismiss()
         } else {
             super.onBackPressed()
         }
@@ -119,6 +117,11 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         super.onDestroy()
         unbindService(connect)
         pop.dismiss()
-        colorPop.dismiss()
+        val color:ColorPickerPop? = colorPop
+        if (color!=null&& color.isShowing) {
+            color.dismiss()
+        }
+        viewEvent?.dispose()
+        clickEvent?.dispose()
     }
 }

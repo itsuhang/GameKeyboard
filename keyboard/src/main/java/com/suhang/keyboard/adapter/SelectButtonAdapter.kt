@@ -6,8 +6,10 @@ import android.view.ViewGroup
 import android.widget.Toast
 import com.suhang.keyboard.R
 import com.suhang.keyboard.event.ClickEvent
+import com.suhang.keyboard.event.PClickEvent
 import com.suhang.keyboard.utils.KeyHelper
 import com.suhang.keyboard.utils.KeyMap
+import com.suhang.keyboard.widget.SelectButtonPop
 import com.suhang.networkmvp.function.rx.RxBusSingle
 import kotlinx.android.synthetic.main.select_button_item.view.*
 
@@ -15,15 +17,20 @@ import kotlinx.android.synthetic.main.select_button_item.view.*
  * Created by 苏杭 on 2017/8/9 20:39.
  */
 
-class SelectButtonAdapter: RecyclerView.Adapter<SelectButtonAdapter.Holder>() {
+class SelectButtonAdapter(type: Int) : RecyclerView.Adapter<SelectButtonAdapter.Holder>() {
+    val mType = type
     override fun onBindViewHolder(holder: Holder, position: Int) {
         val text = KeyMap.keyMap.keyAt(position)
         holder.itemView.tv.text = text
         holder.itemView.setOnClickListener {
-            RxBusSingle.instance().post(ClickEvent(text))
+            if (mType == SelectButtonPop.STATUS_ONE) {
+                RxBusSingle.instance().post(ClickEvent(text))
+            } else if(mType == SelectButtonPop.STATUS_TWO){
+                RxBusSingle.instance().post(PClickEvent(text))
+            }
         }
         holder.itemView.setOnLongClickListener {
-            Toast.makeText(holder.itemView.context,KeyHelper.getDesc(text),Toast.LENGTH_SHORT).show()
+            Toast.makeText(holder.itemView.context, KeyHelper.getDesc(text), Toast.LENGTH_SHORT).show()
             true
         }
     }
@@ -37,5 +44,5 @@ class SelectButtonAdapter: RecyclerView.Adapter<SelectButtonAdapter.Holder>() {
         return KeyMap.keyMap.size
     }
 
-    inner class Holder(itemView: View): RecyclerView.ViewHolder(itemView)
+    inner class Holder(itemView: View) : RecyclerView.ViewHolder(itemView)
 }

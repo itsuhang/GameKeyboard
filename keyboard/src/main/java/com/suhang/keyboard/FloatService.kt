@@ -16,7 +16,6 @@ class FloatService : Service() {
         FloatKeyboard.isEdit = new
     })
     lateinit var mWm:WindowManager
-    var listener:IShowKeyboard? = null
     lateinit var keyboard:FloatKeyboard
     override fun onCreate() {
         super.onCreate()
@@ -29,6 +28,10 @@ class FloatService : Service() {
     }
 
     val binder = object : IMove.Stub() {
+        override fun destory() {
+            keyboard.destory()
+        }
+
         override fun check(isChecked: Boolean) {
             isCheck = isChecked
         }
@@ -45,10 +48,6 @@ class FloatService : Service() {
             keyboard.addKey(key)
         }
 
-        override fun setOnShowListener(listener: IShowKeyboard?) {
-            this@FloatService.listener = listener
-        }
-
         override fun isEdit(): Boolean {
             return this@FloatService.isEdit
         }
@@ -60,6 +59,5 @@ class FloatService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        keyboard.destory()
     }
 }
