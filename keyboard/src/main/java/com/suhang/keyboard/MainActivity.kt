@@ -12,6 +12,7 @@ import android.view.Gravity
 import android.view.inputmethod.InputMethodManager
 import com.suhang.keyboard.event.ClickEvent
 import com.suhang.keyboard.utils.SharedPrefUtil
+import com.suhang.keyboard.widget.ColorPickerPop
 import com.suhang.keyboard.widget.SelectButtonPop
 import com.suhang.networkmvp.function.rx.RxBusSingle
 import kotlinx.android.synthetic.main.activity_main.*
@@ -28,11 +29,13 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     val connect = MyConnect()
     var move: IMove? = null
     lateinit var pop:SelectButtonPop
+    lateinit var colorPop:ColorPickerPop
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         checkBox.isChecked = SharedPrefUtil.getBoolean(CHECK_STATUS,false)
         pop = SelectButtonPop(this)
+        colorPop = ColorPickerPop(this)
         manager = applicationContext.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         startService<FloatService>()
         val intent = Intent(this, FloatService::class.java)
@@ -86,6 +89,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         }
 
         button.setOnClickListener {
+            colorPop.showAtLocation(contentView,Gravity.BOTTOM,0,0)
         }
 
         button2.setOnClickListener {

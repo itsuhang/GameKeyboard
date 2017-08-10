@@ -4,8 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    app:cardCornerRadius="5dp"
-    app:cardElevation="3dp"
+    app:cardCornerRadius="@dimen/default_radius"
+    app:cardElevation="4dp"
     >
     <com.suhang.keyboard.widget.MoveButton
         android:gravity="center"
