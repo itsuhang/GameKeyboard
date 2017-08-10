@@ -2,18 +2,24 @@ package com.suhang.keyboard
 
 import android.content.Context
 import android.graphics.PixelFormat
-import android.view.Gravity
-import android.view.MotionEvent
-import android.view.View
-import android.view.WindowManager
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.StateListDrawable
+import android.support.v7.widget.CardView
+import android.view.*
 import android.view.WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
 import android.view.inputmethod.InputMethodManager
+import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
+import com.google.gson.Gson
+import com.suhang.keyboard.constants.Constant.Companion.LOCAL_SAVE
 import com.suhang.keyboard.data.ButtonData
+import com.suhang.keyboard.utils.GsonUtil
 import com.suhang.keyboard.utils.KeyHelper
+import com.suhang.keyboard.utils.SharedPrefUtil
 import kotlinx.android.synthetic.main.keyboard.view.*
 import org.jetbrains.anko.AnkoLogger
+import org.jetbrains.anko.dip
 import org.jetbrains.anko.info
 
 
@@ -40,7 +46,7 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
                 if (isEdit) {
                     v.tag?.let {
                         val param = it as WindowManager.LayoutParams
-                        info("x:${param.x}  y:${param.y}  rawX:${event.rawX}   rawY:${event.rawY}")
+                        info("x:${x - mTouchStartX}  y:${y - mTouchStartY}  rawX:${param.x}   rawY:${param.y}")
                         param.x = (x - mTouchStartX)
                         param.y = (y - mTouchStartY)
                         mWm.updateViewLayout(v, param)
@@ -56,6 +62,7 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
         return false
     }
 
+
     override fun onClick(v: View) {
         val view = (v as TextView)
         var s = view.text.toString()
@@ -70,9 +77,9 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
             arrayList = views[s]
             arrayList?.forEach {
                 if (send == KeyHelper.STATUS_ON) {
-                    it.botton.text = s.toUpperCase()
+                    it.button.text = s.toUpperCase()
                 } else if (send == KeyHelper.STATUS_OFF) {
-                    it.botton.text = s.toLowerCase()
+                    it.button.text = s.toLowerCase()
                 }
             }
 
@@ -86,7 +93,7 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
     }
 
     val mContext = context
-    val datas = HashMap<String, ButtonData>()
+    val datas = ArrayList<ButtonData>()
     val views = HashMap<String, ArrayList<View>>()
     val mWm: WindowManager
 
@@ -95,6 +102,7 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
         commonHeight = context.resources.getDimension(R.dimen.default_height).toInt()
         onEvent()
         mWm = context.applicationContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        restoreButtonFromLocal()
     }
 
     fun addKey(key: String) {
@@ -140,19 +148,28 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
      * 创建按钮数据
      */
     fun createButtonData(key: String): View? {
-        if (datas[key] != null && !FloatService.isCheck) {
+        var data: ButtonData? = null
+        datas.forEach {
+            if (it.key == key) {
+                data = it
+            }
+        }
+        if (data != null && !FloatService.isCheck) {
             Toast.makeText(mContext, "按键重复添加!!!", Toast.LENGTH_SHORT).show()
             return null
         }
-        val buttonData = ButtonData(key, commonWidth, commonHeight, 0, 0)
+        val buttonData = ButtonData(key, commonWidth, commonHeight, 0, 0, 12, mContext.resources.getColor(R.color.gray), 1.0f, ButtonData.SQUARE)
         val button = View.inflate(mContext, R.layout.keyboard, null)
-        info(button.width)
-        button.botton.setOnClickListener(this)
-        button.botton.text = key
+        val stateList = StateListDrawable()
+        stateList.addState(intArrayOf(-android.R.attr.state_pressed), ColorDrawable(buttonData.color))
+        stateList.addState(intArrayOf(android.R.attr.state_pressed), ColorDrawable(buttonData.color - 0x111111))
+        button.button.background = stateList
+        button.button.setOnClickListener(this)
+        button.button.text = key
         button.setOnTouchListener(this)
         button.tag = getLayoutParam()
         button.setTag(R.id.data, buttonData)
-        datas.put(key, buttonData)
+        datas.add(buttonData)
         var array = views[key]
         if (array == null) {
             array = ArrayList()
@@ -162,6 +179,61 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
         return button
     }
 
+    /**
+     * 根据数据恢复按键状态
+     */
+    fun restoreButton(data: ButtonData) {
+        val button = View.inflate(mContext, R.layout.keyboard, null) as CardView
+        button.button.setOnClickListener(this)
+        button.setOnTouchListener(this)
+        button.button.text = data.key
+        button.button.textSize = data.fontSize.toFloat()
+        val stateList = StateListDrawable()
+        stateList.addState(intArrayOf(-android.R.attr.state_pressed), ColorDrawable(data.color))
+        stateList.addState(intArrayOf(android.R.attr.state_pressed), ColorDrawable(data.color - 0x111111))
+        button.button.background = stateList
+        button.radius = (data.width / 2).toFloat()
+        val param = getLayoutParam()
+        param.x = data.x
+        param.y = data.y
+        val layoutParam = FrameLayout.LayoutParams(data.width, data.height)
+        button.button.layoutParams = layoutParam
+        param.alpha = data.alpha
+
+        button.tag = param
+        button.setTag(R.id.data, data)
+        datas.add(data)
+        var array = views[data.key]
+        if (array == null) {
+            array = ArrayList()
+        }
+        array.add(button)
+        views.put(data.key, array)
+        mWm.addView(button, param)
+    }
+
+    /**
+     * 自动保存当前按键状态到本地
+     */
+    private fun saveButtonToLocal() {
+        val gson = Gson()
+        val toJson = gson.toJson(datas)
+        SharedPrefUtil.putString(LOCAL_SAVE, toJson)
+    }
+
+    /**
+     * 自动恢复上次按键状态
+     */
+    private fun restoreButtonFromLocal() {
+        val json = SharedPrefUtil.getString(LOCAL_SAVE, "")
+        if (!json.isBlank()) {
+            val data = GsonUtil.getData(json)
+            data.forEach {
+                info(it)
+                restoreButton(it)
+            }
+        }
+    }
 
     /**
      * 创建悬浮窗参数
@@ -184,6 +256,17 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
     private fun onEvent() {
     }
 
+    /**
+     * 退出后清除悬浮窗
+     */
     fun destory() {
+        saveButtonToLocal()
+        views.values.forEach {
+            it.forEach {
+                mWm.removeViewImmediate(it)
+            }
+        }
+        datas.clear()
+        KeyHelper.instance().reInit()
     }
 }

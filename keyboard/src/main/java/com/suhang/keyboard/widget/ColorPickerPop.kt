@@ -7,9 +7,7 @@ import android.widget.PopupWindow
 import com.suhang.keyboard.R
 import com.suhang.keyboard.utils.ScreenUtils
 import kotlinx.android.synthetic.main.color_picker_pop_layout.view.*
-import kotlinx.android.synthetic.main.keyboard.view.*
 import org.jetbrains.anko.AnkoLogger
-import org.jetbrains.anko.info
 
 /**
  * Created by 苏杭 on 2017/8/10 14:02.
@@ -26,6 +24,9 @@ class ColorPickerPop(activity: Activity) : PopupWindow(),AnkoLogger {
         isOutsideTouchable = true
         view.button.setOnClickListener {
             view.txt_button.setBackgroundColor(view.colorPicker.color-0x111111)
+        }
+        view.btn_cancel.setOnClickListener {
+            dismiss()
         }
     }
 }

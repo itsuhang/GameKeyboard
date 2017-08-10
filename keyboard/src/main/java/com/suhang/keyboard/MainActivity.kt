@@ -10,6 +10,7 @@ import android.os.IBinder
 import android.support.v7.app.AppCompatActivity
 import android.view.Gravity
 import android.view.inputmethod.InputMethodManager
+import com.suhang.keyboard.constants.Constant
 import com.suhang.keyboard.event.ClickEvent
 import com.suhang.keyboard.utils.SharedPrefUtil
 import com.suhang.keyboard.widget.ColorPickerPop
@@ -22,9 +23,6 @@ import org.jetbrains.anko.startService
 
 
 class MainActivity : AppCompatActivity(), AnkoLogger {
-    companion object{
-        const val CHECK_STATUS:String = "check_status"
-    }
     lateinit var manager: InputMethodManager
     val connect = MyConnect()
     var move: IMove? = null
@@ -33,7 +31,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        checkBox.isChecked = SharedPrefUtil.getBoolean(CHECK_STATUS,false)
+        checkBox.isChecked = SharedPrefUtil.getBoolean(Constant.CHECK_STATUS,false)
         pop = SelectButtonPop(this)
         colorPop = ColorPickerPop(this)
         manager = applicationContext.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -75,6 +73,9 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         pop.setOnDismissListener {
             move?.setVisible(true)
         }
+        colorPop.setOnDismissListener {
+            move?.setVisible(true)
+        }
         btn_edit.setOnClickListener {
             val m = move
             m?.let {
@@ -84,23 +85,31 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         }
 
         checkBox.setOnCheckedChangeListener { _, isChecked ->
-            SharedPrefUtil.putBoolean(CHECK_STATUS,isChecked)
+            SharedPrefUtil.putBoolean(Constant.CHECK_STATUS,isChecked)
             move?.check(isChecked)
         }
 
-        button.setOnClickListener {
+        btn_test.setOnClickListener {
+            move?.setVisible(false)
             colorPop.showAtLocation(contentView,Gravity.BOTTOM,0,0)
         }
 
-        button2.setOnClickListener {
+        btn_add.setOnClickListener {
             move?.setVisible(false)
             pop.showAtLocation(contentView, Gravity.BOTTOM, 0, 0)
+        }
+
+        btn_close.setOnClickListener {
+            val intent = Intent(this, FloatService::class.java)
+            stopService(intent)
+            finish()
         }
     }
 
     override fun onBackPressed() {
-        if (pop.isShowing) {
+        if (pop.isShowing or colorPop.isShowing) {
             pop.dismiss()
+            colorPop.dismiss()
         } else {
             super.onBackPressed()
         }
@@ -109,5 +118,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     override fun onDestroy() {
         super.onDestroy()
         unbindService(connect)
+        pop.dismiss()
+        colorPop.dismiss()
     }
 }

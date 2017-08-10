@@ -23,7 +23,6 @@ class KeyHelper private constructor() : AnkoLogger {
             return Holder.INSTANCE
         }
 
-
         fun getDesc(key: String): String {
             var desc = ""
             when (key) {
@@ -144,6 +143,14 @@ class KeyHelper private constructor() : AnkoLogger {
             }
             return desc
         }
+    }
+
+    fun reInit() {
+        isAlt = false
+        isCap = false
+        isCtrl = false
+        isNum = false
+        isShift = false
     }
 
     private object Holder {

@@ -34,6 +34,9 @@ class SelectButtonPop(activity: Activity) : PopupWindow() {
             manager.spanCount = 7
             height = root.dip(300)
         }
+        root.btn_cancel.setOnClickListener {
+            dismiss()
+        }
     }
 
 

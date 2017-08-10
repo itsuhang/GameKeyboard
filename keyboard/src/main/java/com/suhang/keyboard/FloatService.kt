@@ -57,4 +57,9 @@ class FloatService : Service() {
             this@FloatService.isEdit = isEdit
         }
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        keyboard.destory()
+    }
 }
