@@ -74,6 +74,7 @@ class ColorPickerPop(activity: Activity, v: View) : PopupWindow(), AnkoLogger {
             view.cb_circle.isChecked = false
             view.cb_square.isChecked = true
         }
+        view.txt_continue.text = "${data.speed}ms"
 
     }
 
@@ -86,6 +87,7 @@ class ColorPickerPop(activity: Activity, v: View) : PopupWindow(), AnkoLogger {
             data.alpha = d.alpha
             data.fontSize = d.fontSize
             data.shape = d.shape
+            data.speed = d.speed
         }
     }
 
@@ -143,6 +145,17 @@ class ColorPickerPop(activity: Activity, v: View) : PopupWindow(), AnkoLogger {
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
             }
         })
+
+        view.sb_continue.setOnSeekBarChangeListener(object :SeekBar.OnSeekBarChangeListener{
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                view.txt_continue.text = "${progress}ms"
+                data.speed = progress.toLong()
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+            }
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+            }
+        })
         view.cb_circle.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 data.shape = ButtonData.CIRCLE
@@ -169,6 +182,7 @@ class ColorPickerPop(activity: Activity, v: View) : PopupWindow(), AnkoLogger {
                 view.cb_square.isChecked = false
             }
         }
+
         view.colorPicker.setOnColorChangedListener {
             view.txt_button.setBackgroundColor(it)
         }

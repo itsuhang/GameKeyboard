@@ -1,8 +1,5 @@
 package com.suhang.keyboard
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.PixelFormat
 import android.graphics.drawable.ColorDrawable
@@ -271,7 +268,9 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
         button.tag = param
         button.setTag(R.id.data, data)
         button.button.setTag(R.id.data, data)
-        button.setTag(R.id.main, KeyMap.MANAGER_ST)
+        if (key == KeyMap.MANAGER_ST) {
+            button.setTag(R.id.main, KeyMap.MANAGER_ST)
+        }
         datas.add(data)
         var array = views[data.key]
         if (array == null) {
@@ -390,7 +389,7 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
             Toast.makeText(mContext, "按键重复添加!!!", Toast.LENGTH_SHORT).show()
             return null
         }
-        val buttonData = ButtonData(key, commonWidth, commonHeight, 0, 0, 12, mContext.resources.getColor(R.color.gray), 1.0f, ButtonData.SQUARE)
+        val buttonData = ButtonData(key, commonWidth, commonHeight, 0, 0, 12, mContext.resources.getColor(R.color.gray), 1.0f, ButtonData.SQUARE, MoveButton.INTERVAL_TIME)
         val button = View.inflate(mContext, R.layout.keyboard, null)
         val stateList = StateListDrawable()
         stateList.addState(intArrayOf(-android.R.attr.state_pressed), ColorDrawable(buttonData.color))

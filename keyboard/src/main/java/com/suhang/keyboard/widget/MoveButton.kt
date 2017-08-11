@@ -11,7 +11,6 @@ import com.suhang.keyboard.data.ButtonData
 import com.suhang.keyboard.utils.KeyMap
 import io.reactivex.Flowable
 import io.reactivex.disposables.Disposable
-import io.reactivex.functions.Consumer
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.info
 import java.util.concurrent.TimeUnit
@@ -22,7 +21,7 @@ import java.util.concurrent.TimeUnit
 
 class MoveButton : TextView, AnkoLogger {
     companion object {
-        val INTERVAL_TIME: Long = 50
+        val INTERVAL_TIME: Long = 200
     }
 
     constructor(context: Context) : super(context)
@@ -49,7 +48,7 @@ class MoveButton : TextView, AnkoLogger {
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     if (!KeyMap.isSpecalKey(data.key)) {
-                        intervalTask = Flowable.interval(INTERVAL_TIME, INTERVAL_TIME, TimeUnit.MILLISECONDS).subscribe({
+                        intervalTask = Flowable.interval(data.speed, data.speed, TimeUnit.MILLISECONDS).subscribe({
                             listener?.onClick(this@MoveButton)
                         })
                     }
