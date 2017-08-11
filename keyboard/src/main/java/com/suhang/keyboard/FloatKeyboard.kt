@@ -16,6 +16,7 @@ import com.suhang.keyboard.constants.Constant.Companion.LOCAL_SAVE
 import com.suhang.keyboard.data.ButtonData
 import com.suhang.keyboard.event.InViewEvent
 import com.suhang.keyboard.event.OutViewEvent
+import com.suhang.keyboard.event.SaveFileEvent
 import com.suhang.keyboard.utils.GsonUtil
 import com.suhang.keyboard.utils.KeyHelper
 import com.suhang.keyboard.utils.SharedPrefUtil
@@ -25,6 +26,7 @@ import kotlinx.android.synthetic.main.keyboard.view.*
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.dip
 import org.jetbrains.anko.info
+import java.io.*
 
 
 /**
@@ -124,6 +126,7 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
     val views = HashMap<String, ArrayList<View>>()
     val mWm: WindowManager
     var viewEvent: Disposable? = null
+    var saveEvent: Disposable? = null
 
     init {
         commonWidth = context.resources.getDimension(R.dimen.default_width).toInt()
@@ -134,6 +137,26 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
         viewEvent = RxBusSingle.instance().toFlowable(OutViewEvent::class.java).subscribe({
             editKey(it.v)
         })
+        saveEvent = RxBusSingle.instance().toFlowable(SaveFileEvent::class.java).subscribe({
+            saveButton(it.file)
+        })
+    }
+
+    /**
+     * 保存当前按键状态到SD卡
+     */
+    private fun saveButton(file: File) {
+        val gson = Gson()
+        val toJson = gson.toJson(datas)
+        try {
+            val bw = BufferedWriter(FileWriter(file))
+            bw.write(toJson)
+            bw.flush()
+            bw.close()
+            Toast.makeText(mContext, "保存成功",Toast.LENGTH_SHORT).show()
+        } catch (e: IOException) {
+            Toast.makeText(mContext, "保存失败",Toast.LENGTH_SHORT).show()
+        }
     }
 
     /**
@@ -147,6 +170,7 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
         card.button.textSize = data.fontSize.toFloat()
         card.button.layoutParams.width = data.width
         card.button.layoutParams.height = data.height
+        card.alpha = data.alpha
         card.button.requestLayout()
         val stateList = StateListDrawable()
         stateList.addState(intArrayOf(-android.R.attr.state_pressed), ColorDrawable(data.color))
@@ -191,6 +215,7 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
         val layoutParam = FrameLayout.LayoutParams(data.width, data.height)
         button.button.layoutParams = layoutParam
         param.alpha = data.alpha
+        button.alpha = data.alpha
 
         button.tag = param
         button.setTag(R.id.data, data)
@@ -343,6 +368,7 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
             }
         }
         viewEvent?.dispose()
+        saveEvent?.dispose()
         datas.clear()
         KeyHelper.instance().reInit()
     }

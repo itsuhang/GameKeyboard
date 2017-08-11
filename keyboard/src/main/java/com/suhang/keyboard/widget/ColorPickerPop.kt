@@ -42,7 +42,7 @@ class ColorPickerPop(activity: Activity, v: View) : PopupWindow(), AnkoLogger {
     }
 
     private fun initData() {
-        view.txt_key.text = data.key
+        view.txt_button.text = data.key
         view.txt_button.layoutParams.width = data.width
         view.txt_button.layoutParams.height = data.height
         view.txt_buttonsize.text = "${view.px2dip(data.width).toInt()}"
@@ -71,7 +71,7 @@ class ColorPickerPop(activity: Activity, v: View) : PopupWindow(), AnkoLogger {
     var clickEvent: Disposable? = null
     private fun initEvent() {
         clickEvent = RxBusSingle.instance().toFlowable(PClickEvent::class.java).subscribe({
-            view.txt_key.text = it.text
+            view.txt_button.text = it.text
             data.key = it.text
             pop.dismiss()
         })
@@ -112,6 +112,7 @@ class ColorPickerPop(activity: Activity, v: View) : PopupWindow(), AnkoLogger {
         view.sb_transparent.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 view.txt_transparent.text = "$progress%"
+                data.alpha = 1.0f * progress / 100
                 view.button.alpha = 1.0f * progress / 100
             }
 

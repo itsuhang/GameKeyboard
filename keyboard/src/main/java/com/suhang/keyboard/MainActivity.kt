@@ -1,11 +1,13 @@
 package com.suhang.keyboard
 
+import android.Manifest
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.res.Configuration
 import android.os.Bundle
+import android.os.Environment
 import android.os.IBinder
 import android.support.v7.app.AppCompatActivity
 import android.view.Gravity
@@ -13,16 +15,19 @@ import android.view.inputmethod.InputMethodManager
 import com.suhang.keyboard.constants.Constant
 import com.suhang.keyboard.event.ClickEvent
 import com.suhang.keyboard.event.InViewEvent
-import com.suhang.keyboard.event.OutViewEvent
 import com.suhang.keyboard.utils.SharedPrefUtil
 import com.suhang.keyboard.widget.ColorPickerPop
+import com.suhang.keyboard.widget.EditDialog
 import com.suhang.keyboard.widget.SelectButtonPop
 import com.suhang.networkmvp.function.rx.RxBusSingle
+import com.tbruyelle.rxpermissions2.RxPermissions
 import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.contentView
 import org.jetbrains.anko.startService
+import org.jetbrains.anko.toast
+import java.io.File
 
 
 class MainActivity : AppCompatActivity(), AnkoLogger {
@@ -31,11 +36,13 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     var move: IMove? = null
     lateinit var pop: SelectButtonPop
     var colorPop: ColorPickerPop? = null
+    lateinit var saveDialog:EditDialog
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         checkBox.isChecked = SharedPrefUtil.getBoolean(Constant.CHECK_STATUS, false)
         pop = SelectButtonPop(this,SelectButtonPop.STATUS_ONE)
+        saveDialog = EditDialog(this)
         manager = applicationContext.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         startService<FloatService>()
         val intent = Intent(this, FloatService::class.java)
@@ -100,6 +107,36 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             move?.destory()
             finish()
         }
+        btn_save.setOnClickListener {
+            RxPermissions(this).request(Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE).subscribe({
+                if (it) {
+                    val dir = File(Environment.getExternalStorageDirectory(), "suhang")
+                    if (!dir.exists()) {
+                        dir.mkdir()
+                    }
+                    move?.setVisible(false)
+                    saveDialog.show()
+                } else {
+                    toast("你拒绝了读写SD卡权限,无法为你保存配置")
+                }
+            })
+        }
+        saveDialog.setOnDismissListener {
+            move?.setVisible(true)
+        }
+
+        btn_load.setOnClickListener {
+            RxPermissions(this).request(Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE).subscribe({
+                if (it) {
+                    val dir = File(Environment.getExternalStorageDirectory(), "suhang")
+                    if (!dir.exists()) {
+                        dir.mkdir()
+                    }
+                } else {
+                    toast("你拒绝了读写SD卡权限,无法为你保存配置")
+                }
+            })
+        }
     }
 
     override fun onBackPressed() {
@@ -111,6 +148,12 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         } else {
             super.onBackPressed()
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        move?.isEdit = false
+        btn_edit.text ="编辑模式"
     }
 
     override fun onDestroy() {
