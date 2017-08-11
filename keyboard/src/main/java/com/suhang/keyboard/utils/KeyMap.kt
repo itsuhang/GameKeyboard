@@ -15,6 +15,36 @@ class KeyMap {
         const val UP_RIGHT = 9997
         const val DOWN_LEFT = 9996
         const val DOWN_RIGHT = 9995
+        const val MANAGER = 10000
+        const val MANAGER_ST = "●"
+
+        fun isSpecalKey(key:String): Boolean {
+            val letter = key.toLowerCase()
+            when (letter) {
+                MANAGER_ST->{
+                    return true
+                }
+                "shl"->{
+                    return true
+                }
+                "ctl"->{
+                    return true
+                }
+                "all"->{
+                    return true
+                }
+                "cap"->{
+                    return true
+                }
+                "nlc"->{
+                    return true
+                }
+                "key"->{
+                    return true
+                }
+            }
+            return false
+        }
         init {
             keyMap.run {
                 put("a", KeyEvent.KEYCODE_A)
@@ -158,6 +188,7 @@ class KeyMap {
                 put("CTR", KeyEvent.KEYCODE_CTRL_LEFT)
                 put("ctl", KeyEvent.KEYCODE_CTRL_LEFT)
                 put("KEY", KEYBOARD)
+                put(MANAGER_ST, MANAGER)
             }
             keySpecialMap.run {
                 put("NLC", KeyEvent.KEYCODE_NUM_LOCK)

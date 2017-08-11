@@ -19,6 +19,7 @@ class KeyHelper private constructor() : AnkoLogger {
         const val STATUS_NONE = -1
         const val STATUS_ON = 1
         const val STATUS_OFF = 0
+        const val STATUS_MANAGER = 999
         fun instance(): KeyHelper {
             return Holder.INSTANCE
         }
@@ -163,6 +164,7 @@ class KeyHelper private constructor() : AnkoLogger {
     private var isAlt = false
     private var isCap = false
     private var isNum = false
+    private var isManager = false
     private val init = Instrumentation()
 
     fun isOn(ch: String): Boolean {
@@ -186,6 +188,9 @@ class KeyHelper private constructor() : AnkoLogger {
             }
             KeyEvent.KEYCODE_NUM_LOCK -> {
                 return isNum
+            }
+            KeyMap.MANAGER -> {
+                return isManager
             }
         }
         return false
@@ -216,6 +221,11 @@ class KeyHelper private constructor() : AnkoLogger {
             KeyEvent.KEYCODE_NUM_LOCK -> {
                 numlock()
                 return if (isNum) STATUS_ON else STATUS_OFF
+            }
+
+            KeyMap.MANAGER->{
+                isManager = !isManager
+                return STATUS_MANAGER
             }
 
             KeyMap.UP_LEFT -> {

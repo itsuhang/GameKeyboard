@@ -1,5 +1,8 @@
 package com.suhang.keyboard
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.PixelFormat
 import android.graphics.drawable.ColorDrawable
@@ -21,6 +24,7 @@ import com.suhang.keyboard.data.ButtonData
 import com.suhang.keyboard.event.*
 import com.suhang.keyboard.utils.GsonUtil
 import com.suhang.keyboard.utils.KeyHelper
+import com.suhang.keyboard.utils.KeyMap
 import com.suhang.keyboard.utils.SharedPrefUtil
 import com.suhang.keyboard.widget.MoveButton
 import com.suhang.networkmvp.function.rx.RxBusSingle
@@ -40,7 +44,7 @@ import java.io.IOException
  * Created by 苏杭 on 2017/8/4 15:08.
  */
 
-class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickListener, View.OnTouchListener, View.OnLongClickListener {
+class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickListener, View.OnTouchListener {
     var mTouchStartX = 0
     var mTouchStartY = 0
     var startX = 0
@@ -110,11 +114,22 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
                         s = s.toLowerCase()
                     }
                     arrayList = views[s]
+                    info(arrayList?.size)
                     arrayList?.forEach {
                         if (send == KeyHelper.STATUS_ON) {
                             it.button.text = s.toUpperCase()
                         } else if (send == KeyHelper.STATUS_OFF) {
                             it.button.text = s.toLowerCase()
+                        } else if (send == KeyHelper.STATUS_MANAGER) {
+                            if (KeyHelper.instance().isOn(KeyMap.MANAGER_ST)) {
+                                isAnimating = true
+                                transparent()
+                                isAnimating = false
+                            } else {
+                                isAnimating = true
+                                untransparent()
+                                isAnimating = false
+                            }
                         }
                     }
                 }
@@ -124,10 +139,7 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
         }
     }
 
-    override fun onLongClick(v: View?): Boolean {
-
-        return false
-    }
+    private var isAnimating = false
 
     companion object {
         var isEdit = false
@@ -150,6 +162,7 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
         onEvent()
         mWm = context.applicationContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         restoreButtonFromLocal()
+        addKey(KeyMap.MANAGER_ST)
         viewEvent = RxBusSingle.instance().toFlowable(OutViewEvent::class.java).observeOn(AndroidSchedulers.mainThread()).subscribe({
             editKey(it.v)
             saveButtonToLocal()
@@ -226,6 +239,10 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
      * 根据数据恢复按键状态
      */
     fun restoreButton(data: ButtonData) {
+        val key = data.key
+        if (key == KeyMap.MANAGER_ST && views[KeyMap.MANAGER_ST] != null) {
+            return
+        }
         val button = View.inflate(mContext, R.layout.keyboard, null) as CardView
         button.button.setOnContinueClickListener(this)
         button.button.setOnClickListener { }
@@ -253,6 +270,8 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
 
         button.tag = param
         button.setTag(R.id.data, data)
+        button.button.setTag(R.id.data, data)
+        button.setTag(R.id.main, KeyMap.MANAGER_ST)
         datas.add(data)
         var array = views[data.key]
         if (array == null) {
@@ -270,8 +289,8 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
         val data = createButtonData(key)
         data?.let {
             mWm.addView(it, it.tag as WindowManager.LayoutParams)
+            saveButtonToLocal()
         }
-        saveButtonToLocal()
     }
 
     /**
@@ -279,6 +298,11 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
      */
     fun deleteKey(v: View) {
         val data = v.getTag(R.id.data) as ButtonData
+        val main = v.getTag(R.id.main)
+        if (main != null && (main as String) == KeyMap.MANAGER_ST) {
+            Toast.makeText(mContext, "该按键不允许删除!", Toast.LENGTH_SHORT).show()
+            return
+        }
         var isBlank = false
         var key: String? = null
         views.entries.forEach {
@@ -310,14 +334,16 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
      * 暂时隐藏键盘
      */
     fun transparent() {
-        views.values.forEach {
-            it.forEach {
-                val view = it
-                view.tag?.let {
-                    val param = it as WindowManager.LayoutParams
-                    param.alpha = 0f
-                    param.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                    mWm.updateViewLayout(view, param)
+        views.entries.forEach {
+            if (it.key != KeyMap.MANAGER_ST) {
+                it.value.forEach {
+                    val view = it
+                    view.tag?.let {
+                        val param = it as WindowManager.LayoutParams
+                        param.alpha = 0f
+                        param.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                        mWm.updateViewLayout(view, param)
+                    }
                 }
             }
         }
@@ -327,17 +353,19 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
      * 取消隐藏键盘
      */
     fun untransparent() {
-        views.values.forEach {
-            it.forEach {
-                val view = it
-                view.tag?.let {
-                    val param = it as WindowManager.LayoutParams
-                    val data = view.getTag(R.id.data) as ButtonData
-                    param.alpha = data.alpha
-                    param.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                    try {
-                        mWm.updateViewLayout(view, param)
-                    } catch (e: Exception) {
+        views.entries.forEach {
+            if (it.key != KeyMap.MANAGER_ST) {
+                it.value.forEach {
+                    val view = it
+                    view.tag?.let {
+                        val param = it as WindowManager.LayoutParams
+                        val data = view.getTag(R.id.data) as ButtonData
+                        param.alpha = data.alpha
+                        param.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                        try {
+                            mWm.updateViewLayout(view, param)
+                        } catch (e: Exception) {
+                        }
                     }
                 }
             }
@@ -348,6 +376,10 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
      * 创建按钮数据
      */
     fun createButtonData(key: String): View? {
+        if (key == KeyMap.MANAGER_ST && views[KeyMap.MANAGER_ST] != null) {
+//            Toast.makeText(mContext,"该按键为控制键,只能有一个",Toast.LENGTH_SHORT).show()
+            return null
+        }
         var data: ButtonData? = null
         datas.forEach {
             if (it.key == key) {
@@ -370,6 +402,10 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
         button.setOnTouchListener(this)
         button.tag = getLayoutParam()
         button.setTag(R.id.data, buttonData)
+        button.button.setTag(R.id.data, buttonData)
+        if (key == KeyMap.MANAGER_ST) {
+            button.setTag(R.id.main, KeyMap.MANAGER_ST)
+        }
         datas.add(buttonData)
         var array = views[key]
         if (array == null) {

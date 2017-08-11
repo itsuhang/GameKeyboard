@@ -1,5 +1,7 @@
 package com.suhang.keyboard.utils;
 
+import android.animation.ValueAnimator;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.suhang.keyboard.data.ButtonData;
