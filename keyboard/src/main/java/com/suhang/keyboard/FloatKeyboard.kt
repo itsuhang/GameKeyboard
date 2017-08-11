@@ -14,10 +14,7 @@ import android.widget.Toast
 import com.google.gson.Gson
 import com.suhang.keyboard.constants.Constant.Companion.LOCAL_SAVE
 import com.suhang.keyboard.data.ButtonData
-import com.suhang.keyboard.event.DeleteEvent
-import com.suhang.keyboard.event.InViewEvent
-import com.suhang.keyboard.event.OutViewEvent
-import com.suhang.keyboard.event.SaveFileEvent
+import com.suhang.keyboard.event.*
 import com.suhang.keyboard.utils.GsonUtil
 import com.suhang.keyboard.utils.KeyHelper
 import com.suhang.keyboard.utils.SharedPrefUtil
@@ -131,6 +128,7 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
     var viewEvent: Disposable? = null
     var saveEvent: Disposable? = null
     var deleteEvent: Disposable? = null
+    var selectEvent: Disposable? = null
 
     init {
         commonWidth = context.resources.getDimension(R.dimen.default_width).toInt()
@@ -146,6 +144,18 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
         })
         deleteEvent = RxBusSingle.instance().toFlowable(DeleteEvent::class.java).subscribe({
             deleteKey(it.v)
+        })
+        selectEvent = RxBusSingle.instance().toFlowable(SelectFileEvent::class.java).subscribe({
+            views.values.forEach {
+                it.forEach {
+                    mWm.removeViewImmediate(it)
+                }
+            }
+            views.clear()
+            datas.clear()
+            it.list.forEach {
+                restoreButton(it)
+            }
         })
     }
 
@@ -304,9 +314,13 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
                 val view = it
                 view.tag?.let {
                     val param = it as WindowManager.LayoutParams
-                    param.alpha = 1.0f
+                    val data = view.getTag(R.id.data) as ButtonData
+                    param.alpha = data.alpha
                     param.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                    mWm.updateViewLayout(view, param)
+                    try {
+                        mWm.updateViewLayout(view, param)
+                    } catch (e: Exception) {
+                    }
                 }
             }
         }
@@ -402,9 +416,12 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
                 mWm.removeViewImmediate(it)
             }
         }
+        views.clear()
+        datas.clear()
         viewEvent?.dispose()
         saveEvent?.dispose()
-        datas.clear()
+        deleteEvent?.dispose()
+        selectEvent?.dispose()
         KeyHelper.instance().reInit()
     }
 }

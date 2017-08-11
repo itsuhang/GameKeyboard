@@ -10,6 +10,7 @@
     <com.suhang.keyboard.widget.MoveButton
         android:gravity="center"
         android:id="@+id/button"
+        android:textColor="@color/black"
         android:textSize="12sp"
         android:layout_width="@dimen/default_width"
         android:layout_height="@dimen/default_height"

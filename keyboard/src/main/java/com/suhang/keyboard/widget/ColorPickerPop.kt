@@ -6,6 +6,7 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.PopupWindow
 import android.widget.SeekBar
+import android.widget.Toast
 import com.suhang.keyboard.R
 import com.suhang.keyboard.data.ButtonData
 import com.suhang.keyboard.event.DeleteEvent
@@ -38,7 +39,6 @@ class ColorPickerPop(activity: Activity, v: View) : PopupWindow(), AnkoLogger {
         isOutsideTouchable = true
         view.button.setOnClickListener {
             data.color = view.colorPicker.color
-            lastData = data
             RxBusSingle.instance().post(OutViewEvent(v))
             dismiss()
         }
@@ -179,8 +179,13 @@ class ColorPickerPop(activity: Activity, v: View) : PopupWindow(), AnkoLogger {
             pop.showAtLocation(mActivity.window.decorView, Gravity.BOTTOM, 0, 0)
         }
         view.btn_copy.setOnClickListener {
+            lastData = data
+            Toast.makeText(mActivity,"复制样式成功!",Toast.LENGTH_SHORT).show()
+        }
+        view.btn_paste.setOnClickListener {
             copyData()
             initData()
+            Toast.makeText(mActivity,"粘贴样式成功!",Toast.LENGTH_SHORT).show()
         }
     }
 

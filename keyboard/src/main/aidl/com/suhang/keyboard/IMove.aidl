@@ -7,7 +7,7 @@ interface IMove {
     void setEdit(in boolean isEdit);
     boolean isEdit();
     void addKey(in String key);
-    void destory();
+    void destroy();
     void check(in boolean isChecked);
     void setVisible(in boolean isVisible);
 }

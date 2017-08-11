@@ -28,7 +28,7 @@ class FloatService : Service() {
     }
 
     val binder = object : IMove.Stub() {
-        override fun destory() {
+        override fun destroy() {
             keyboard.destory()
         }
 

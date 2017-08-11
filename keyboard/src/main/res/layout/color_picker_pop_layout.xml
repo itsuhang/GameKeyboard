@@ -65,6 +65,7 @@
                     android:layout_width="@dimen/default_width"
                     android:layout_height="@dimen/default_height"
                     android:gravity="center"
+                    android:textColor="@color/black"
                     android:text="OK"
                     />
             </android.support.v7.widget.CardView>
@@ -261,7 +262,7 @@
 
             <Button
                 android:id="@+id/btn_copy"
-                android:layout_width="wrap_content"
+                android:layout_width="55dp"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="0dp"
                 android:layout_marginLeft="0dp"
@@ -279,6 +280,18 @@
                 android:text="删除"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"/>
+
+            <Button
+                android:id="@+id/btn_paste"
+                android:layout_width="55dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="0dp"
+                android:layout_marginLeft="0dp"
+                android:layout_marginTop="0dp"
+                android:text="粘贴"
+                app:layout_constraintBottom_toBottomOf="@+id/btn_copy"
+                app:layout_constraintLeft_toRightOf="@+id/btn_copy"
+                app:layout_constraintTop_toTopOf="@+id/btn_copy"/>
         </android.support.constraint.ConstraintLayout>
     </android.support.v7.widget.CardView>
 

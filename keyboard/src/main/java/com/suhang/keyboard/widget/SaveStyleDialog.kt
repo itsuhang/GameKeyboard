@@ -8,18 +8,18 @@ import android.view.View
 import android.widget.Toast
 import com.suhang.keyboard.R
 import com.suhang.networkmvp.function.rx.RxBusSingle
-import kotlinx.android.synthetic.main.edit_dialog_layout.view.*
 import java.io.File
 import android.view.Gravity
 import android.view.WindowManager
 import com.suhang.keyboard.event.SaveFileEvent
+import kotlinx.android.synthetic.main.savestyle_dialog_layout.view.*
 
 
 /**
  * Created by 苏杭 on 2017/8/11 10:02.
  */
-class EditDialog(context: Context) : Dialog(context) {
-    val view = View.inflate(context, R.layout.edit_dialog_layout, null)!!
+class SaveStyleDialog(context: Context) : Dialog(context) {
+    val view = View.inflate(context, R.layout.savestyle_dialog_layout, null)!!
     val file = File("${Environment.getExternalStorageDirectory()}/suhang")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
