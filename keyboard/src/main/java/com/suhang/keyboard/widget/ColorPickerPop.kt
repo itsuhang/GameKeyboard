@@ -8,6 +8,7 @@ import android.widget.PopupWindow
 import android.widget.SeekBar
 import com.suhang.keyboard.R
 import com.suhang.keyboard.data.ButtonData
+import com.suhang.keyboard.event.DeleteEvent
 import com.suhang.keyboard.event.OutViewEvent
 import com.suhang.keyboard.event.PClickEvent
 import com.suhang.networkmvp.function.rx.RxBusSingle
@@ -21,6 +22,9 @@ import org.jetbrains.anko.px2dip
  * Created by 苏杭 on 2017/8/10 14:02.
  */
 class ColorPickerPop(activity: Activity, v: View) : PopupWindow(), AnkoLogger {
+    companion object{
+        var lastData:ButtonData? = null
+    }
     val mActivity = activity
     val view = View.inflate(activity, R.layout.color_picker_pop_layout, null)!!
     val data: ButtonData = v.getTag(R.id.data) as ButtonData
@@ -34,7 +38,12 @@ class ColorPickerPop(activity: Activity, v: View) : PopupWindow(), AnkoLogger {
         isOutsideTouchable = true
         view.button.setOnClickListener {
             data.color = view.colorPicker.color
+            lastData = data
             RxBusSingle.instance().post(OutViewEvent(v))
+            dismiss()
+        }
+        view.btn_delete.setOnClickListener {
+            RxBusSingle.instance().post(DeleteEvent(v))
             dismiss()
         }
         initData()
@@ -66,6 +75,18 @@ class ColorPickerPop(activity: Activity, v: View) : PopupWindow(), AnkoLogger {
             view.cb_square.isChecked = true
         }
 
+    }
+
+    fun copyData() {
+        val d = lastData
+        d?.let {
+            data.width = d.width
+            data.height = d.height
+            data.color =d.color
+            data.alpha = d.alpha
+            data.fontSize = d.fontSize
+            data.shape = d.shape
+        }
     }
 
     var clickEvent: Disposable? = null
@@ -156,6 +177,10 @@ class ColorPickerPop(activity: Activity, v: View) : PopupWindow(), AnkoLogger {
         }
         view.btn_changekey.setOnClickListener {
             pop.showAtLocation(mActivity.window.decorView, Gravity.BOTTOM, 0, 0)
+        }
+        view.btn_copy.setOnClickListener {
+            copyData()
+            initData()
         }
     }
 

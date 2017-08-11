@@ -14,6 +14,7 @@ import android.widget.Toast
 import com.google.gson.Gson
 import com.suhang.keyboard.constants.Constant.Companion.LOCAL_SAVE
 import com.suhang.keyboard.data.ButtonData
+import com.suhang.keyboard.event.DeleteEvent
 import com.suhang.keyboard.event.InViewEvent
 import com.suhang.keyboard.event.OutViewEvent
 import com.suhang.keyboard.event.SaveFileEvent
@@ -21,12 +22,14 @@ import com.suhang.keyboard.utils.GsonUtil
 import com.suhang.keyboard.utils.KeyHelper
 import com.suhang.keyboard.utils.SharedPrefUtil
 import com.suhang.networkmvp.function.rx.RxBusSingle
+import io.reactivex.Flowable
 import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.keyboard.view.*
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.dip
 import org.jetbrains.anko.info
 import java.io.*
+import java.util.concurrent.TimeUnit
 
 
 /**
@@ -127,6 +130,7 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
     val mWm: WindowManager
     var viewEvent: Disposable? = null
     var saveEvent: Disposable? = null
+    var deleteEvent: Disposable? = null
 
     init {
         commonWidth = context.resources.getDimension(R.dimen.default_width).toInt()
@@ -139,6 +143,9 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
         })
         saveEvent = RxBusSingle.instance().toFlowable(SaveFileEvent::class.java).subscribe({
             saveButton(it.file)
+        })
+        deleteEvent = RxBusSingle.instance().toFlowable(DeleteEvent::class.java).subscribe({
+            deleteKey(it.v)
         })
     }
 
@@ -153,9 +160,9 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
             bw.write(toJson)
             bw.flush()
             bw.close()
-            Toast.makeText(mContext, "保存成功",Toast.LENGTH_SHORT).show()
+            Toast.makeText(mContext, "保存成功", Toast.LENGTH_SHORT).show()
         } catch (e: IOException) {
-            Toast.makeText(mContext, "保存失败",Toast.LENGTH_SHORT).show()
+            Toast.makeText(mContext, "保存失败", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -229,12 +236,40 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
         mWm.addView(button, param)
     }
 
+    /**
+     * 添加按键
+     */
     fun addKey(key: String) {
         val data = createButtonData(key)
         data?.let {
             mWm.addView(it, it.tag as WindowManager.LayoutParams)
         }
     }
+
+    /**
+     * 删除按键
+     */
+    fun deleteKey(v: View) {
+        val data = v.getTag(R.id.data) as ButtonData
+        var isBlank = false
+        var key: String? = null
+        views.entries.forEach {
+            if (it.value.contains(v)) {
+                key = it.key
+                it.value.remove(v)
+            }
+            if (it.value.size == 0) {
+                isBlank = true
+            }
+        }
+        if (key != null && isBlank) {
+            views.remove(key!!)
+        }
+        datas.remove(data)
+        info(key)
+        mWm.removeViewImmediate(v)
+    }
+
 
     /**
      * 调出软键盘

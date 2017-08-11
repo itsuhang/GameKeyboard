@@ -237,6 +237,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="取消"
+                android:textColor="@color/black"
                 app:layout_constraintRight_toLeftOf="@+id/button"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/button"
@@ -244,10 +245,10 @@
                 app:layout_constraintBottom_toBottomOf="@+id/button"
                 android:layout_marginBottom="0dp"/>
 
-            <TextView
+            <Button
                 android:id="@+id/btn_changekey"
-                android:layout_width="80dp"
-                android:layout_height="30dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_marginBottom="0dp"
                 android:layout_marginTop="0dp"
                 android:gravity="center"
@@ -257,6 +258,27 @@
                 app:layout_constraintTop_toTopOf="@+id/button"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintLeft_toRightOf="@+id/button"/>
+
+            <Button
+                android:id="@+id/btn_copy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="0dp"
+                android:layout_marginLeft="0dp"
+                android:text="复制"
+                android:textColor="@color/black"
+                app:layout_constraintBottom_toTopOf="@+id/button"
+                app:layout_constraintLeft_toLeftOf="@+id/btn_changekey"/>
+
+            <Button
+                android:id="@+id/btn_delete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="8dp"
+                android:layout_marginTop="8dp"
+                android:text="删除"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
         </android.support.constraint.ConstraintLayout>
     </android.support.v7.widget.CardView>
 
