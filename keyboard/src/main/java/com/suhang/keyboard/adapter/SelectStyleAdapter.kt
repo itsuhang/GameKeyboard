@@ -36,6 +36,14 @@ class SelectStyleAdapter(context: Context) : RecyclerView.Adapter<SelectStyleAda
                 RxBusSingle.instance().post(SelectFileEvent(it))
             }
         }
+        holder.itemView.btn_delete.setOnClickListener {
+            val file = mFileList[position]
+            val success = mFileList[position].delete()
+            if (success) {
+                mFileList.remove(file)
+                notifyDataSetChanged()
+            }
+        }
     }
 
     fun refresh(fileList: ArrayList<File>) {

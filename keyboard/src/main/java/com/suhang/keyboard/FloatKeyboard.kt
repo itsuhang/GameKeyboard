@@ -4,8 +4,12 @@ import android.content.Context
 import android.graphics.PixelFormat
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.StateListDrawable
+import android.os.Handler
 import android.support.v7.widget.CardView
-import android.view.*
+import android.view.Gravity
+import android.view.MotionEvent
+import android.view.View
+import android.view.WindowManager
 import android.view.WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
 import android.view.inputmethod.InputMethodManager
 import android.widget.FrameLayout
@@ -18,26 +22,30 @@ import com.suhang.keyboard.event.*
 import com.suhang.keyboard.utils.GsonUtil
 import com.suhang.keyboard.utils.KeyHelper
 import com.suhang.keyboard.utils.SharedPrefUtil
+import com.suhang.keyboard.widget.MoveButton
 import com.suhang.networkmvp.function.rx.RxBusSingle
-import io.reactivex.Flowable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.keyboard.view.*
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.dip
 import org.jetbrains.anko.info
-import java.io.*
-import java.util.concurrent.TimeUnit
+import java.io.BufferedWriter
+import java.io.File
+import java.io.FileWriter
+import java.io.IOException
 
 
 /**
  * Created by 苏杭 on 2017/8/4 15:08.
  */
 
-class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.OnTouchListener, View.OnLongClickListener {
+class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickListener, View.OnTouchListener, View.OnLongClickListener {
     var mTouchStartX = 0
     var mTouchStartY = 0
     var startX = 0
     var startY = 0
+    val handler = Handler()
     override fun onTouch(v: View, event: MotionEvent): Boolean {
         // 获取相对屏幕的坐标，即以屏幕左上角为原点
         val x = event.rawX.toInt()
@@ -71,12 +79,16 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
             MotionEvent.ACTION_UP -> {
                 if (Math.abs(x - startX) < v.dip(5) || Math.abs(y - startY) < v.dip(5)) {
                     onClick(v)
+                } else {
+                    saveButtonToLocal()
                 }
             }
 
             MotionEvent.ACTION_CANCEL -> {
                 if (Math.abs(x - startX) < v.dip(5) || Math.abs(y - startY) < v.dip(5)) {
                     onClick(v)
+                } else {
+                    saveButtonToLocal()
                 }
             }
         }
@@ -86,22 +98,24 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
 
     override fun onClick(v: View) {
         if (!isEdit) {
-            val view = (v as TextView)
-            var s = view.text.toString()
-            if ("KEY" == s) {
-                showKeyboard()
-            } else {
-                val send = KeyHelper.instance().send(s)
-                var arrayList = views[s]
-                if (arrayList == null) {
-                    s = s.toLowerCase()
-                }
-                arrayList = views[s]
-                arrayList?.forEach {
-                    if (send == KeyHelper.STATUS_ON) {
-                        it.button.text = s.toUpperCase()
-                    } else if (send == KeyHelper.STATUS_OFF) {
-                        it.button.text = s.toLowerCase()
+            handler.post {
+                val view = (v as TextView)
+                var s = view.text.toString()
+                if ("KEY" == s) {
+                    showKeyboard()
+                } else {
+                    val send = KeyHelper.instance().send(s)
+                    var arrayList = views[s]
+                    if (arrayList == null) {
+                        s = s.toLowerCase()
+                    }
+                    arrayList = views[s]
+                    arrayList?.forEach {
+                        if (send == KeyHelper.STATUS_ON) {
+                            it.button.text = s.toUpperCase()
+                        } else if (send == KeyHelper.STATUS_OFF) {
+                            it.button.text = s.toLowerCase()
+                        }
                     }
                 }
             }
@@ -136,16 +150,18 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
         onEvent()
         mWm = context.applicationContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         restoreButtonFromLocal()
-        viewEvent = RxBusSingle.instance().toFlowable(OutViewEvent::class.java).subscribe({
+        viewEvent = RxBusSingle.instance().toFlowable(OutViewEvent::class.java).observeOn(AndroidSchedulers.mainThread()).subscribe({
             editKey(it.v)
+            saveButtonToLocal()
         })
-        saveEvent = RxBusSingle.instance().toFlowable(SaveFileEvent::class.java).subscribe({
+        saveEvent = RxBusSingle.instance().toFlowable(SaveFileEvent::class.java).observeOn(AndroidSchedulers.mainThread()).subscribe({
             saveButton(it.file)
         })
-        deleteEvent = RxBusSingle.instance().toFlowable(DeleteEvent::class.java).subscribe({
+        deleteEvent = RxBusSingle.instance().toFlowable(DeleteEvent::class.java).observeOn(AndroidSchedulers.mainThread()).subscribe({
             deleteKey(it.v)
+            saveButtonToLocal()
         })
-        selectEvent = RxBusSingle.instance().toFlowable(SelectFileEvent::class.java).subscribe({
+        selectEvent = RxBusSingle.instance().toFlowable(SelectFileEvent::class.java).observeOn(AndroidSchedulers.mainThread()).subscribe({
             views.values.forEach {
                 it.forEach {
                     mWm.removeViewImmediate(it)
@@ -183,7 +199,7 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
         val card = v as CardView
         val data = card.getTag(R.id.data) as ButtonData
         val param = card.tag as WindowManager.LayoutParams
-        card.button.text = data.key
+        card.button.text = if (KeyHelper.instance().isOn(data.key)) data.key.toUpperCase() else data.key
         card.button.textSize = data.fontSize.toFloat()
         card.button.layoutParams.width = data.width
         card.button.layoutParams.height = data.height
@@ -211,9 +227,10 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
      */
     fun restoreButton(data: ButtonData) {
         val button = View.inflate(mContext, R.layout.keyboard, null) as CardView
-        button.button.setOnClickListener(this)
+        button.button.setOnContinueClickListener(this)
+        button.button.setOnClickListener { }
         button.setOnTouchListener(this)
-        button.button.text = data.key
+        button.button.text = if (KeyHelper.instance().isOn(data.key)) data.key.toUpperCase() else data.key
         button.button.textSize = data.fontSize.toFloat()
         val stateList = StateListDrawable()
         stateList.addState(intArrayOf(-android.R.attr.state_pressed), ColorDrawable(data.color))
@@ -254,6 +271,7 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
         data?.let {
             mWm.addView(it, it.tag as WindowManager.LayoutParams)
         }
+        saveButtonToLocal()
     }
 
     /**
@@ -346,7 +364,8 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
         stateList.addState(intArrayOf(-android.R.attr.state_pressed), ColorDrawable(buttonData.color))
         stateList.addState(intArrayOf(android.R.attr.state_pressed), ColorDrawable(buttonData.color - 0x111111))
         button.button.background = stateList
-        button.button.setOnClickListener(this)
+        button.button.setOnContinueClickListener(this)
+        button.button.setOnClickListener { }
         button.button.text = key
         button.setOnTouchListener(this)
         button.tag = getLayoutParam()
@@ -410,7 +429,6 @@ class FloatKeyboard(context: Context) : AnkoLogger, View.OnClickListener, View.O
      * 退出后清除悬浮窗
      */
     fun destory() {
-        saveButtonToLocal()
         views.values.forEach {
             it.forEach {
                 mWm.removeViewImmediate(it)

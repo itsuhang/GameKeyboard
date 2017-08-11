@@ -11,7 +11,10 @@ class KeyMap {
         val keyMap = ArrayMap<String, Int>()
         val keySpecialMap = ArrayMap<String, Int>()
         const val KEYBOARD = 9999
-
+        const val UP_LEFT = 9998
+        const val UP_RIGHT = 9997
+        const val DOWN_LEFT = 9996
+        const val DOWN_RIGHT = 9995
         init {
             keyMap.run {
                 put("a", KeyEvent.KEYCODE_A)
@@ -132,6 +135,10 @@ class KeyMap {
                 put("↓", KeyEvent.KEYCODE_DPAD_DOWN)
                 put("←", KeyEvent.KEYCODE_DPAD_LEFT)
                 put("→", KeyEvent.KEYCODE_DPAD_RIGHT)
+                put("↖", UP_LEFT)
+                put("↗", UP_RIGHT)
+                put("↙", DOWN_LEFT)
+                put("↘", DOWN_RIGHT)
                 put("DEL", KeyEvent.KEYCODE_DEL)
                 put("BAC", KeyEvent.KEYCODE_DEL)
                 //键盘锁

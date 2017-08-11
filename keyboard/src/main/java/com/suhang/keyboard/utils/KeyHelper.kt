@@ -165,7 +165,33 @@ class KeyHelper private constructor() : AnkoLogger {
     private var isNum = false
     private val init = Instrumentation()
 
-    fun send(ch: String):Int {
+    fun isOn(ch: String): Boolean {
+        val letter = ch.toUpperCase()
+        var key = KeyMap.keyMap[ch]
+        if (key == null) {
+            key = KeyMap.keySpecialMap[letter]
+        }
+        when (key) {
+            KeyEvent.KEYCODE_SHIFT_LEFT -> {
+                return isShift
+            }
+            KeyEvent.KEYCODE_ALT_LEFT -> {
+                return isAlt
+            }
+            KeyEvent.KEYCODE_CTRL_LEFT -> {
+                return isCtrl
+            }
+            KeyEvent.KEYCODE_CAPS_LOCK -> {
+                return isCap
+            }
+            KeyEvent.KEYCODE_NUM_LOCK -> {
+                return isNum
+            }
+        }
+        return false
+    }
+
+    fun send(ch: String): Int {
         val letter = ch.toUpperCase()
         var key = KeyMap.keyMap[ch]
         if (key == null) {
@@ -184,12 +210,28 @@ class KeyHelper private constructor() : AnkoLogger {
 
             KeyEvent.KEYCODE_CAPS_LOCK -> {
                 capital()
-                return if(isCap) STATUS_ON else STATUS_OFF
+                return if (isCap) STATUS_ON else STATUS_OFF
             }
 
             KeyEvent.KEYCODE_NUM_LOCK -> {
                 numlock()
-                return if(isNum) STATUS_ON else STATUS_OFF
+                return if (isNum) STATUS_ON else STATUS_OFF
+            }
+
+            KeyMap.UP_LEFT -> {
+                sendUpLeft()
+            }
+
+            KeyMap.UP_RIGHT -> {
+                sendUpRight()
+            }
+
+            KeyMap.DOWN_LEFT -> {
+                sendDownLeft()
+            }
+
+            KeyMap.DOWN_RIGHT -> {
+                sendDownRight()
             }
 
             else -> {
@@ -197,6 +239,26 @@ class KeyHelper private constructor() : AnkoLogger {
             }
         }
         return STATUS_NONE
+    }
+
+    fun sendUpLeft() {
+        sendKey(KeyEvent.KEYCODE_DPAD_UP)
+        sendKey(KeyEvent.KEYCODE_DPAD_LEFT)
+    }
+
+    fun sendUpRight() {
+        sendKey(KeyEvent.KEYCODE_DPAD_UP)
+        sendKey(KeyEvent.KEYCODE_DPAD_RIGHT)
+    }
+
+    fun sendDownLeft() {
+        sendKey(KeyEvent.KEYCODE_DPAD_DOWN)
+        sendKey(KeyEvent.KEYCODE_DPAD_LEFT)
+    }
+
+    fun sendDownRight() {
+        sendKey(KeyEvent.KEYCODE_DPAD_DOWN)
+        sendKey(KeyEvent.KEYCODE_DPAD_RIGHT)
     }
 
     fun sendKey(key: Int?) {
@@ -231,7 +293,7 @@ class KeyHelper private constructor() : AnkoLogger {
         }
     }
 
-    fun shift(key: String):Int {
+    fun shift(key: String): Int {
         val k = key.toLowerCase()
         when (k) {
             "sht" -> {
@@ -244,7 +306,7 @@ class KeyHelper private constructor() : AnkoLogger {
                     sendDownKey(SHIFT_CODE)
                 }
                 isShift = !isShift
-                return if(isShift) STATUS_ON else STATUS_OFF
+                return if (isShift) STATUS_ON else STATUS_OFF
             }
         }
         return STATUS_NONE
@@ -260,7 +322,7 @@ class KeyHelper private constructor() : AnkoLogger {
         isNum = !isNum
     }
 
-    fun ctrl(key: String) :Int{
+    fun ctrl(key: String): Int {
         val k = key.toLowerCase()
         when (k) {
             "ctr" -> {
@@ -273,13 +335,13 @@ class KeyHelper private constructor() : AnkoLogger {
                     sendDownKey(CTRL_CODE)
                 }
                 isCtrl = !isCtrl
-                return if(isCtrl) STATUS_ON else STATUS_OFF
+                return if (isCtrl) STATUS_ON else STATUS_OFF
             }
         }
         return STATUS_NONE
     }
 
-    fun alt(key: String):Int {
+    fun alt(key: String): Int {
         val k = key.toLowerCase()
         when (k) {
             "alt" -> {
@@ -292,7 +354,7 @@ class KeyHelper private constructor() : AnkoLogger {
                     sendDownKey(ALT_CODE)
                 }
                 isAlt = !isAlt
-                return if(isAlt) STATUS_ON else STATUS_OFF
+                return if (isAlt) STATUS_ON else STATUS_OFF
             }
         }
         return STATUS_NONE
