@@ -1,6 +1,7 @@
 package com.suhang.keyboard
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.PixelFormat
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.StateListDrawable
@@ -127,6 +128,17 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
                                 untransparent()
                                 isAnimating = false
                             }
+                        } else if (send == KeyHelper.STATUS_HOME) {
+                            val intent = Intent()
+                            intent.action = Intent.ACTION_MAIN
+                            intent.addCategory(Intent.CATEGORY_HOME)
+                            mContext.startActivity(intent)
+                        } else if (send == KeyHelper.STATUS_RETURN) {
+                            val intent = Intent()
+                            intent.action = "com.suhang.return"
+                            intent.addCategory(Intent.CATEGORY_DEFAULT)
+                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            mContext.startActivity(intent)
                         }
                     }
                 }

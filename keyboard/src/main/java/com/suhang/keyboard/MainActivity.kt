@@ -117,7 +117,10 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                     if (!dir.exists()) {
                         dir.mkdir()
                     }
+                    val list = ArrayList<File>()
+                    dir.listFiles().filterTo(list) { it.name.endsWith(".kb") }
                     move?.setVisible(false)
+                    saveDialog.refresh(list)
                     saveDialog.show()
                 } else {
                     toast("你拒绝了读写SD卡权限,无法为你保存配置")

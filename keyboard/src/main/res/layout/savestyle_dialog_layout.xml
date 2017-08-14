@@ -20,24 +20,33 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
-
+    <android.support.v7.widget.RecyclerView
+        android:layout_width="300dp"
+        android:layout_height="200dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="8dp"
+        android:id="@+id/rv"
+        app:layout_constraintTop_toBottomOf="@+id/et_name"/>
     <Button
         android:id="@+id/btn_cancel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="0dp"
         android:text="取消"
         app:layout_constraintLeft_toLeftOf="@+id/et_name"
-        app:layout_constraintTop_toBottomOf="@+id/et_name"/>
+        app:layout_constraintTop_toBottomOf="@+id/rv"/>
 
     <Button
         android:id="@+id/btn_certain"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginRight="14dp"
+        android:layout_marginTop="0dp"
         android:text="确定"
         app:layout_constraintRight_toRightOf="@+id/et_name"
-        app:layout_constraintTop_toBottomOf="@+id/et_name"/>
+        app:layout_constraintTop_toBottomOf="@+id/rv"/>
 </android.support.constraint.ConstraintLayout>

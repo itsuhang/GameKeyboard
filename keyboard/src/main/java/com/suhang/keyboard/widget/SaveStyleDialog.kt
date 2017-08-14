@@ -4,6 +4,7 @@ import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
 import android.os.Environment
+import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import android.widget.Toast
 import com.suhang.keyboard.R
@@ -11,6 +12,7 @@ import com.suhang.networkmvp.function.rx.RxBusSingle
 import java.io.File
 import android.view.Gravity
 import android.view.WindowManager
+import com.suhang.keyboard.adapter.SelectStyleAdapter
 import com.suhang.keyboard.event.SaveFileEvent
 import kotlinx.android.synthetic.main.savestyle_dialog_layout.view.*
 
@@ -21,6 +23,8 @@ import kotlinx.android.synthetic.main.savestyle_dialog_layout.view.*
 class SaveStyleDialog(context: Context) : Dialog(context) {
     val view = View.inflate(context, R.layout.savestyle_dialog_layout, null)!!
     val file = File("${Environment.getExternalStorageDirectory()}/suhang")
+    private val manager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+    private val adapter = SelectStyleAdapter(context,SelectStyleAdapter.TYPE_COVER)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val dialogWindow = window
@@ -34,7 +38,13 @@ class SaveStyleDialog(context: Context) : Dialog(context) {
         initView()
     }
 
+    fun refresh(list:ArrayList<File>) {
+        adapter.refresh(list)
+    }
+
     private fun initView() {
+        view.rv.layoutManager = manager
+        view.rv.adapter = adapter
         view.btn_cancel.setOnClickListener {
             dismiss()
         }

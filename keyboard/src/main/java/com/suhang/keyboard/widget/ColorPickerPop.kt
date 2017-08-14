@@ -75,7 +75,7 @@ class ColorPickerPop(activity: Activity, v: View) : PopupWindow(), AnkoLogger {
             view.cb_square.isChecked = true
         }
         view.txt_continue.text = "${data.speed}ms"
-
+        view.sb_continue.progress = data.speed.toInt()
     }
 
     fun copyData() {

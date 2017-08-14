@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import com.suhang.keyboard.R
 import com.suhang.keyboard.data.ButtonData
+import com.suhang.keyboard.event.SaveFileEvent
 import com.suhang.keyboard.event.SelectFileEvent
 import com.suhang.keyboard.utils.GsonUtil
 import com.suhang.networkmvp.function.rx.RxBusSingle
@@ -20,7 +21,13 @@ import java.io.FileReader
 /**
  * Created by 苏杭 on 2017/8/11 11:49.
  */
-class SelectStyleAdapter(context: Context) : RecyclerView.Adapter<SelectStyleAdapter.Holder>(),AnkoLogger {
+class SelectStyleAdapter(context: Context, type: Int) : RecyclerView.Adapter<SelectStyleAdapter.Holder>(), AnkoLogger {
+    companion object {
+        const val TYPE_DELETE = 100
+        const val TYPE_COVER = 101
+    }
+
+    var mType: Int = type
     var mFileList = ArrayList<File>()
     val mContext = context
     override fun getItemCount(): Int {
@@ -28,20 +35,29 @@ class SelectStyleAdapter(context: Context) : RecyclerView.Adapter<SelectStyleAda
     }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
-        info(mFileList[position].name)
-        holder.itemView.txt_style.text = mFileList[position].name
-        holder.itemView.setOnClickListener {
-            val list = getFileContent(mFileList[position])
-            list?.let {
-                RxBusSingle.instance().post(SelectFileEvent(it))
+        val file = mFileList[position]
+        holder.itemView.txt_style.text = file.name
+
+        if (mType == TYPE_COVER) {
+            holder.itemView.btn_delete.text = "覆盖"
+        } else {
+            holder.itemView.btn_delete.text = "删除"
+            holder.itemView.setOnClickListener {
+                val list = getFileContent(file)
+                list?.let {
+                    RxBusSingle.instance().post(SelectFileEvent(it))
+                }
             }
         }
         holder.itemView.btn_delete.setOnClickListener {
-            val file = mFileList[position]
-            val success = mFileList[position].delete()
-            if (success) {
-                mFileList.remove(file)
-                notifyDataSetChanged()
+            if (mType == TYPE_DELETE) {
+                val success = mFileList[position].delete()
+                if (success) {
+                    mFileList.remove(file)
+                    notifyDataSetChanged()
+                }
+            } else {
+                RxBusSingle.instance().post(SaveFileEvent(file))
             }
         }
     }
@@ -60,7 +76,7 @@ class SelectStyleAdapter(context: Context) : RecyclerView.Adapter<SelectStyleAda
             val data = GsonUtil.getData(text)
             return data
         } catch (e: Exception) {
-            Toast.makeText(mContext,"读取样式失败",Toast.LENGTH_SHORT).show()
+            Toast.makeText(mContext, "读取样式失败", Toast.LENGTH_SHORT).show()
             return null
         }
     }

@@ -16,7 +16,11 @@ class KeyMap {
         const val DOWN_LEFT = 9996
         const val DOWN_RIGHT = 9995
         const val MANAGER = 10000
+        const val MANAGER_RETURN_CODE = 10001
         const val MANAGER_ST = "●"
+        const val MANAGER_BACK = "◁"
+        const val MANAGER_HOME = "〇"
+        const val MANAGER_RETURN = "☢"
 
         fun isSpecalKey(key:String): Boolean {
             val letter = key.toLowerCase()
@@ -170,7 +174,10 @@ class KeyMap {
                 put("↙", DOWN_LEFT)
                 put("↘", DOWN_RIGHT)
                 put("DEL", KeyEvent.KEYCODE_DEL)
-                put("BAC", KeyEvent.KEYCODE_DEL)
+                put("BAC", KeyEvent.KEYCODE_FORWARD_DEL)
+                put(MANAGER_BACK, KeyEvent.KEYCODE_BACK)
+                put(MANAGER_HOME, KeyEvent.KEYCODE_HOME)
+                put(MANAGER_RETURN, MANAGER_RETURN_CODE)
                 //键盘锁
                 put("nlc", KeyEvent.KEYCODE_NUM_LOCK)
                 //大小写锁

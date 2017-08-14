@@ -21,7 +21,7 @@ import java.io.File
 class SelectStyleDialog(context: Context) : Dialog(context) {
     private val view = View.inflate(context, R.layout.selectstyle_dialog_layout, null)!!
     private val manager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-    private val adapter = SelectStyleAdapter(context)
+    private val adapter = SelectStyleAdapter(context,SelectStyleAdapter.TYPE_DELETE)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val dialogWindow = window

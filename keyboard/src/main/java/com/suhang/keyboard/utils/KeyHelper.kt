@@ -20,6 +20,8 @@ class KeyHelper private constructor() : AnkoLogger {
         const val STATUS_ON = 1
         const val STATUS_OFF = 0
         const val STATUS_MANAGER = 999
+        const val STATUS_HOME = 1000
+        const val STATUS_RETURN = 1001
         fun instance(): KeyHelper {
             return Holder.INSTANCE
         }
@@ -141,6 +143,22 @@ class KeyHelper private constructor() : AnkoLogger {
                     desc = "唤起软键盘"
                 }
 
+                KeyMap.MANAGER_BACK -> {
+                    desc = "手机返回键"
+                }
+
+                KeyMap.MANAGER_HOME -> {
+                    desc = "手机Home键"
+                }
+
+                KeyMap.MANAGER_ST -> {
+                    desc = "管理键(隐藏和显示其他按键)"
+                }
+
+                KeyMap.MANAGER_RETURN -> {
+                    desc = "回到Exagear"
+                }
+
             }
             return desc
         }
@@ -223,7 +241,14 @@ class KeyHelper private constructor() : AnkoLogger {
                 return if (isNum) STATUS_ON else STATUS_OFF
             }
 
-            KeyMap.MANAGER->{
+            KeyEvent.KEYCODE_HOME -> {
+                return STATUS_HOME
+            }
+            KeyMap.MANAGER_RETURN_CODE -> {
+                return STATUS_RETURN
+            }
+
+            KeyMap.MANAGER -> {
                 isManager = !isManager
                 return STATUS_MANAGER
             }
