@@ -244,6 +244,10 @@ class KeyHelper private constructor() : AnkoLogger {
             KeyEvent.KEYCODE_HOME -> {
                 return STATUS_HOME
             }
+
+            KeyMap.MANAGER_STICK_CODE -> {
+            }
+
             KeyMap.MANAGER_RETURN_CODE -> {
                 return STATUS_RETURN
             }
@@ -276,27 +280,27 @@ class KeyHelper private constructor() : AnkoLogger {
         return STATUS_NONE
     }
 
-    fun sendUpLeft() {
+    private fun sendUpLeft() {
         sendKey(KeyEvent.KEYCODE_DPAD_UP)
         sendKey(KeyEvent.KEYCODE_DPAD_LEFT)
     }
 
-    fun sendUpRight() {
+    private fun sendUpRight() {
         sendKey(KeyEvent.KEYCODE_DPAD_UP)
         sendKey(KeyEvent.KEYCODE_DPAD_RIGHT)
     }
 
-    fun sendDownLeft() {
+    private fun sendDownLeft() {
         sendKey(KeyEvent.KEYCODE_DPAD_DOWN)
         sendKey(KeyEvent.KEYCODE_DPAD_LEFT)
     }
 
-    fun sendDownRight() {
+    private fun sendDownRight() {
         sendKey(KeyEvent.KEYCODE_DPAD_DOWN)
         sendKey(KeyEvent.KEYCODE_DPAD_RIGHT)
     }
 
-    fun sendKey(key: Int?) {
+    private fun sendKey(key: Int?) {
         if (key != null) {
             pools.execute {
                 try {
@@ -308,7 +312,7 @@ class KeyHelper private constructor() : AnkoLogger {
     }
 
 
-    fun sendDownKey(key: Int) {
+    private fun sendDownKey(key: Int) {
         val keyEventDown = KeyEvent(KeyEvent.ACTION_DOWN, key)
         pools.execute {
             try {
@@ -318,7 +322,7 @@ class KeyHelper private constructor() : AnkoLogger {
         }
     }
 
-    fun sendUpKey(key: Int) {
+    private fun sendUpKey(key: Int) {
         val keyEventUp = KeyEvent(KeyEvent.ACTION_UP, key)
         pools.execute {
             try {
@@ -328,7 +332,7 @@ class KeyHelper private constructor() : AnkoLogger {
         }
     }
 
-    fun shift(key: String): Int {
+    private fun shift(key: String): Int {
         val k = key.toLowerCase()
         when (k) {
             "sht" -> {
@@ -347,17 +351,17 @@ class KeyHelper private constructor() : AnkoLogger {
         return STATUS_NONE
     }
 
-    fun capital() {
+    private fun capital() {
         sendKey(CAPLOCK_CODE)
         isCap = !isCap
     }
 
-    fun numlock() {
+    private fun numlock() {
         sendKey(NUMLOCK_CODE)
         isNum = !isNum
     }
 
-    fun ctrl(key: String): Int {
+    private fun ctrl(key: String): Int {
         val k = key.toLowerCase()
         when (k) {
             "ctr" -> {
@@ -376,7 +380,7 @@ class KeyHelper private constructor() : AnkoLogger {
         return STATUS_NONE
     }
 
-    fun alt(key: String): Int {
+    private fun alt(key: String): Int {
         val k = key.toLowerCase()
         when (k) {
             "alt" -> {

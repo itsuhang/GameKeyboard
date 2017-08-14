@@ -140,7 +140,7 @@
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"
                 android:layout_marginStart="8dp"
-                android:max="100"
+                android:max="200"
                 app:layout_constraintBottom_toBottomOf="@+id/textView5"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintLeft_toRightOf="@+id/txt_buttonsize"
@@ -315,7 +315,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
                 android:layout_marginLeft="8dp"
-                android:text="连发速度"
+                android:text="连发延迟"
                 android:textColor="@color/black"
                 app:layout_constraintBottom_toTopOf="@+id/textView5"
                 app:layout_constraintLeft_toLeftOf="parent"/>

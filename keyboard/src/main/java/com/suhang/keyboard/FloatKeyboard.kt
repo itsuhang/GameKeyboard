@@ -79,7 +79,7 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
             }
 
             MotionEvent.ACTION_UP -> {
-                if (Math.abs(x - startX) < v.dip(5) || Math.abs(y - startY) < v.dip(5)) {
+                if (Math.abs(x - startX) < v.dip(1) || Math.abs(y - startY) < v.dip(1)) {
                     onClick(v)
                 } else {
                     saveButtonToLocal()
@@ -87,7 +87,7 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
             }
 
             MotionEvent.ACTION_CANCEL -> {
-                if (Math.abs(x - startX) < v.dip(5) || Math.abs(y - startY) < v.dip(5)) {
+                if (Math.abs(x - startX) < v.dip(1) || Math.abs(y - startY) < v.dip(1)) {
                     onClick(v)
                 } else {
                     saveButtonToLocal()
@@ -225,9 +225,12 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
         card.button.textSize = data.fontSize.toFloat()
         card.button.layoutParams.width = data.width
         card.button.layoutParams.height = data.height
+        card.stick.layoutParams.width = data.width
+        card.stick.layoutParams.height = data.height
         card.alpha = data.alpha
         card.button.requestLayout()
         val stateList = StateListDrawable()
+        card.stick.setBackgroundColor(data.color)
         stateList.addState(intArrayOf(-android.R.attr.state_pressed), ColorDrawable(data.color))
         stateList.addState(intArrayOf(android.R.attr.state_pressed), ColorDrawable(data.color - 0x111111))
         card.button.background = stateList
@@ -252,7 +255,15 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
         if (key == KeyMap.MANAGER_ST && views[KeyMap.MANAGER_ST] != null) {
             return
         }
+        val param = getLayoutParam()
         val button = View.inflate(mContext, R.layout.keyboard, null) as CardView
+        if (key == KeyMap.MANAGER_STICK) {
+            data.shape = ButtonData.CIRCLE
+            button.button.visibility = View.GONE
+            button.stick.visibility = View.VISIBLE
+            button.stick.setTag(R.id.data,data)
+            button.stick.setBackgroundColor(data.color)
+        }
         button.button.setOnContinueClickListener(this)
         button.button.setOnClickListener { }
         button.setOnTouchListener(this)
@@ -267,13 +278,13 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
         } else {
             button.radius = mContext.resources.getDimension(R.dimen.default_radius)
         }
-        val param = getLayoutParam()
         param.x = data.x
         param.y = data.y
         param.width = data.width
         param.height = data.height
         val layoutParam = FrameLayout.LayoutParams(data.width, data.height)
         button.button.layoutParams = layoutParam
+        button.stick.layoutParams = layoutParam
         param.alpha = data.alpha
         button.alpha = data.alpha
 
@@ -402,7 +413,19 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
             return null
         }
         val buttonData = ButtonData(key, commonWidth, commonHeight, 0, 0, 12, mContext.resources.getColor(R.color.gray), 1.0f, ButtonData.SQUARE, MoveButton.INTERVAL_TIME)
+        val param = getLayoutParam()
         val button = View.inflate(mContext, R.layout.keyboard, null)
+        if (key == KeyMap.MANAGER_STICK) {
+            buttonData.width = mContext.resources.getDimension(R.dimen.default_stick_size).toInt()
+            buttonData.height = mContext.resources.getDimension(R.dimen.default_stick_size).toInt()
+            buttonData.shape = ButtonData.CIRCLE
+            button.button.visibility = View.GONE
+            button.stick.visibility = View.VISIBLE
+            button.stick.setTag(R.id.data,buttonData)
+            button.stick.setBackgroundColor(buttonData.color)
+            param.width = buttonData.width
+            param.height = buttonData.height
+        }
         val stateList = StateListDrawable()
         stateList.addState(intArrayOf(-android.R.attr.state_pressed), ColorDrawable(buttonData.color))
         stateList.addState(intArrayOf(android.R.attr.state_pressed), ColorDrawable(buttonData.color - 0x111111))
@@ -411,7 +434,7 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
         button.button.setOnClickListener { }
         button.button.text = key
         button.setOnTouchListener(this)
-        button.tag = getLayoutParam()
+        button.tag = param
         button.setTag(R.id.data, buttonData)
         button.button.setTag(R.id.data, buttonData)
         if (key == KeyMap.MANAGER_ST) {
