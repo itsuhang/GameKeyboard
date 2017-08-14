@@ -1,6 +1,7 @@
 package com.suhang.keyboard.widget
 
 import android.content.Context
+import android.graphics.drawable.ColorDrawable
 import android.util.AttributeSet
 import android.view.Gravity
 import android.view.MotionEvent
@@ -55,7 +56,7 @@ class ShotStickParent : FrameLayout, AnkoLogger {
         innerView.isStroke = false
         addView(externalView)
         addView(innerView)
-        super.setBackgroundColor(R.color.little_gray)
+//        background = ColorDrawable(resources.getColor(R.color.transparent))
         post({
             val param = innerView.layoutParams as FrameLayout.LayoutParams
             innerView.layoutParams.width = width / 3
@@ -79,30 +80,33 @@ class ShotStickParent : FrameLayout, AnkoLogger {
                     val slope = Math.sqrt(((dx * dx + dy * dy).toDouble()))
                     if (Math.abs(dx) > width / 6 || Math.abs(dy) > height / 6) {
                         val proportion = radius / slope
+                        val ddy = dy
+                        val ddx = dx
                         if (slope >= radius) {
                             dx = (dx * proportion).toFloat()
                             dy = (dy * proportion).toFloat()
                         }
                         innerView.translationX = dx
                         innerView.translationY = -dy
-                        val ratio = dy / slope
-                        if (ratio > -thresholdValue1 && ratio < thresholdValue1 && dx > 0) {
+                        val ratio = ddy / slope
+                        if (ratio > -thresholdValue1 && ratio < thresholdValue1 && ddx > 0) {
                             direction = Direction.RIGHT
-                        } else if (ratio > -thresholdValue1 && ratio < thresholdValue1 && dx < 0) {
+                        } else if (ratio > -thresholdValue1 && ratio < thresholdValue1 && ddx < 0) {
                             direction = Direction.LEFT
-                        } else if (ratio > thresholdValue2 && ratio < 1 && dy > 0) {
+                        } else if (ratio > thresholdValue2 && ratio < 1 && ddy > 0) {
                             direction = Direction.UP
-                        } else if (ratio < -thresholdValue2 && ratio > -1 && dy < 0) {
+                        } else if (ratio < -thresholdValue2 && ratio > -1 && ddy < 0) {
                             direction = Direction.DOWN
-                        } else if (ratio in thresholdValue1..thresholdValue2 && dx > 0) {
+                        } else if (ratio in thresholdValue1..thresholdValue2 && ddx > 0) {
                             direction = Direction.UP_RIGHT
-                        } else if (ratio in thresholdValue1..thresholdValue2 && dx < 0) {
+                        } else if (ratio in thresholdValue1..thresholdValue2 && ddx < 0) {
                             direction = Direction.UP_LEFT
-                        } else if (ratio >= -thresholdValue2 && ratio <= -thresholdValue1 && dx > 0) {
+                        } else if (ratio >= -thresholdValue2 && ratio <= -thresholdValue1 && ddx > 0) {
                             direction = Direction.DOWN_RIGHT
-                        } else if (ratio >= -thresholdValue2 && ratio <= -thresholdValue1 && dx < 0) {
+                        } else if (ratio >= -thresholdValue2 && ratio <= -thresholdValue1 && ddx < 0) {
                             direction = Direction.DOWN_LEFT
                         }
+                        info(direction)
                         if (direction != lastDirection) {
                             listener?.onStatusChanger(direction)
                         }

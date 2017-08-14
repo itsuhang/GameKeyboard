@@ -416,9 +416,12 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
         val param = getLayoutParam()
         val button = View.inflate(mContext, R.layout.keyboard, null)
         if (key == KeyMap.MANAGER_STICK) {
+            val card = button as CardView
             buttonData.width = mContext.resources.getDimension(R.dimen.default_stick_size).toInt()
             buttonData.height = mContext.resources.getDimension(R.dimen.default_stick_size).toInt()
             buttonData.shape = ButtonData.CIRCLE
+            card.radius = (buttonData.width/2).toFloat()
+            card.radius = (buttonData.height/2).toFloat()
             button.button.visibility = View.GONE
             button.stick.visibility = View.VISIBLE
             button.stick.setTag(R.id.data,buttonData)
