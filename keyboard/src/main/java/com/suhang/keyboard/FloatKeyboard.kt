@@ -228,9 +228,9 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
         card.stick.layoutParams.width = data.width
         card.stick.layoutParams.height = data.height
         card.alpha = data.alpha
+        card.stick.setBackgroundColor(data.color)
         card.button.requestLayout()
         val stateList = StateListDrawable()
-        card.stick.setBackgroundColor(data.color)
         stateList.addState(intArrayOf(-android.R.attr.state_pressed), ColorDrawable(data.color))
         stateList.addState(intArrayOf(android.R.attr.state_pressed), ColorDrawable(data.color - 0x111111))
         card.button.background = stateList
@@ -422,7 +422,6 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
             button.button.visibility = View.GONE
             button.stick.visibility = View.VISIBLE
             button.stick.setTag(R.id.data,buttonData)
-            button.stick.setBackgroundColor(buttonData.color)
             param.width = buttonData.width
             param.height = buttonData.height
         }

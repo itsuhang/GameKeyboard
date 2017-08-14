@@ -40,6 +40,7 @@ class ShotStickParent : FrameLayout, AnkoLogger {
         if (key == R.id.data) {
             info(tag)
             data = tag as ButtonData
+            createTask()
         }
     }
 
@@ -54,6 +55,7 @@ class ShotStickParent : FrameLayout, AnkoLogger {
         innerView.isStroke = false
         addView(externalView)
         addView(innerView)
+        super.setBackgroundColor(R.color.little_gray)
         post({
             val param = innerView.layoutParams as FrameLayout.LayoutParams
             innerView.layoutParams.width = width / 3
@@ -61,14 +63,12 @@ class ShotStickParent : FrameLayout, AnkoLogger {
             param.gravity = Gravity.CENTER
             innerView.requestLayout()
         })
-
         externalView.setOnTouchListener { _, event ->
             val centerX = 1.0f * width / 2
             val centerY = 1.0f * height / 2
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     listener?.onStatusChanger(direction)
-                    createTask()
                 }
                 MotionEvent.ACTION_MOVE -> {
                     val x = event.x
@@ -113,26 +113,31 @@ class ShotStickParent : FrameLayout, AnkoLogger {
                     innerView.translationX = 0f
                     innerView.translationY = 0f
                     direction = Direction.CENTER
-                    dispose?.dispose()
                 }
                 MotionEvent.ACTION_CANCEL -> {
                     innerView.translationX = 0f
                     innerView.translationY = 0f
                     direction = Direction.CENTER
-                    dispose?.dispose()
                 }
             }
             !FloatKeyboard.isEdit
         }
     }
 
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        dispose?.dispose()
+    }
+
     fun createTask() {
         dispose = Flowable.interval(data.speed, data.speed, TimeUnit.MILLISECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe({
             when (direction) {
+                Direction.CENTER->{
+
+                }
                 Direction.RIGHT -> {
                     KeyHelper.instance().send("→")
                 }
-
                 Direction.LEFT -> {
                     KeyHelper.instance().send("←")
                 }

@@ -20,6 +20,7 @@ class ShotStick : View {
     constructor(context: Context, attributeSet: AttributeSet) : super(context, attributeSet)
     override fun setBackgroundColor(color: Int) {
         this.color = color
+        invalidate()
     }
     init {
         val cap = Paint.Cap.ROUND
