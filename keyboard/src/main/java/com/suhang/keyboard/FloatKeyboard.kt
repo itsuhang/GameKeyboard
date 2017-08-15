@@ -99,56 +99,10 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
 
 
     override fun onClick(v: View) {
-        if (!isEdit) {
-            handler.post {
-                val view = (v as TextView)
-                var s = view.text.toString()
-                if ("KEY" == s) {
-                    showKeyboard()
-                } else {
-                    val send = KeyHelper.instance().send(s)
-                    var arrayList = views[s]
-                    if (arrayList == null) {
-                        s = s.toLowerCase()
-                    }
-                    arrayList = views[s]
-                    info(arrayList?.size)
-                    arrayList?.forEach {
-                        if (send == KeyHelper.STATUS_ON) {
-                            it.button.text = s.toUpperCase()
-                        } else if (send == KeyHelper.STATUS_OFF) {
-                            it.button.text = s.toLowerCase()
-                        } else if (send == KeyHelper.STATUS_MANAGER) {
-                            if (KeyHelper.instance().isOn(KeyMap.MANAGER_ST)) {
-                                isAnimating = true
-                                transparent()
-                                isAnimating = false
-                            } else {
-                                isAnimating = true
-                                untransparent()
-                                isAnimating = false
-                            }
-                        } else if (send == KeyHelper.STATUS_HOME) {
-                            val intent = Intent()
-                            intent.action = Intent.ACTION_MAIN
-                            intent.addCategory(Intent.CATEGORY_HOME)
-                            mContext.startActivity(intent)
-                        } else if (send == KeyHelper.STATUS_RETURN) {
-                            val intent = Intent()
-                            intent.action = "com.suhang.return"
-                            intent.addCategory(Intent.CATEGORY_DEFAULT)
-                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                            mContext.startActivity(intent)
-                        }
-                    }
-                }
-            }
-        } else {
+        if (isEdit) {
             RxBusSingle.instance().post(InViewEvent(v))
         }
     }
-
-    private var isAnimating = false
 
     companion object {
         var isEdit = false
@@ -164,6 +118,7 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
     var saveEvent: Disposable? = null
     var deleteEvent: Disposable? = null
     var selectEvent: Disposable? = null
+    var transparentEvent: Disposable? = null
 
     init {
         commonWidth = context.resources.getDimension(R.dimen.default_width).toInt()
@@ -193,6 +148,14 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
             datas.clear()
             it.list.forEach {
                 restoreButton(it)
+            }
+        })
+
+        transparentEvent = RxBusSingle.instance().toFlowable(TransparentEvent::class.java).observeOn(AndroidSchedulers.mainThread()).subscribe({
+            if (it.isTransparent) {
+                transparent()
+            } else {
+                untransparent()
             }
         })
     }
@@ -261,7 +224,7 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
             data.shape = ButtonData.CIRCLE
             button.button.visibility = View.GONE
             button.stick.visibility = View.VISIBLE
-            button.stick.setTag(R.id.data,data)
+            button.stick.setTag(R.id.data, data)
             button.stick.setBackgroundColor(data.color)
         }
         button.button.setOnContinueClickListener(this)
@@ -344,14 +307,6 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
         mWm.removeViewImmediate(v)
     }
 
-
-    /**
-     * 调出软键盘
-     */
-    private fun showKeyboard() {
-        (mContext.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS)
-    }
-
     /**
      * 暂时隐藏键盘
      */
@@ -420,11 +375,11 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
             buttonData.width = mContext.resources.getDimension(R.dimen.default_stick_size).toInt()
             buttonData.height = mContext.resources.getDimension(R.dimen.default_stick_size).toInt()
             buttonData.shape = ButtonData.CIRCLE
-            card.radius = (buttonData.width/2).toFloat()
-            card.radius = (buttonData.height/2).toFloat()
+            card.radius = (buttonData.width / 2).toFloat()
+            card.radius = (buttonData.height / 2).toFloat()
             button.button.visibility = View.GONE
             button.stick.visibility = View.VISIBLE
-            button.stick.setTag(R.id.data,buttonData)
+            button.stick.setTag(R.id.data, buttonData)
             param.width = buttonData.width
             param.height = buttonData.height
         }
@@ -512,6 +467,7 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
         saveEvent?.dispose()
         deleteEvent?.dispose()
         selectEvent?.dispose()
+        transparentEvent?.dispose()
         KeyHelper.instance().reInit()
     }
 }

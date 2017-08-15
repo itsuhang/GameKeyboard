@@ -2,6 +2,11 @@ package com.suhang.keyboard.utils
 
 import android.app.Instrumentation
 import android.view.KeyEvent
+import com.suhang.keyboard.event.KeysEvent
+import io.reactivex.processors.FlowableProcessor
+import io.reactivex.processors.PublishProcessor
+import io.reactivex.schedulers.Schedulers
+import io.reactivex.subscribers.SerializedSubscriber
 import org.jetbrains.anko.AnkoLogger
 import java.util.concurrent.Executors
 
@@ -214,7 +219,7 @@ class KeyHelper private constructor() : AnkoLogger {
         return false
     }
 
-    fun send(ch: String): Int {
+    fun sendDown(ch: String): Int {
         val letter = ch.toUpperCase()
         var key = KeyMap.keyMap[ch]
         if (key == null) {
@@ -248,6 +253,7 @@ class KeyHelper private constructor() : AnkoLogger {
             KeyMap.MANAGER_STICK_CODE -> {
             }
 
+
             KeyMap.MANAGER_RETURN_CODE -> {
                 return STATUS_RETURN
             }
@@ -258,46 +264,95 @@ class KeyHelper private constructor() : AnkoLogger {
             }
 
             KeyMap.UP_LEFT -> {
-                sendUpLeft()
+                sendUpLeftDown()
             }
 
             KeyMap.UP_RIGHT -> {
-                sendUpRight()
+                sendUpRightDown()
             }
 
             KeyMap.DOWN_LEFT -> {
-                sendDownLeft()
+                sendDownLeftDown()
             }
 
             KeyMap.DOWN_RIGHT -> {
-                sendDownRight()
+                sendDownRightDown()
             }
 
             else -> {
-                sendKey(key)
+                sendDownKey(key)
             }
         }
         return STATUS_NONE
     }
 
-    private fun sendUpLeft() {
-        sendKey(KeyEvent.KEYCODE_DPAD_UP)
-        sendKey(KeyEvent.KEYCODE_DPAD_LEFT)
+    fun sendUp(ch: String): Int {
+        val key = KeyMap.keyMap[ch]
+        when (key) {
+            KeyMap.MANAGER_STICK_CODE -> {
+            }
+
+            KeyMap.UP_LEFT -> {
+                sendUpLeftUp()
+            }
+
+            KeyMap.UP_RIGHT -> {
+                sendUpRightUp()
+            }
+
+            KeyMap.DOWN_LEFT -> {
+                sendDownLeftUp()
+            }
+
+            KeyMap.DOWN_RIGHT -> {
+                sendDownRightUp()
+            }
+
+            else -> {
+                sendUpKey(key)
+            }
+        }
+        return STATUS_NONE
     }
 
-    private fun sendUpRight() {
-        sendKey(KeyEvent.KEYCODE_DPAD_UP)
-        sendKey(KeyEvent.KEYCODE_DPAD_RIGHT)
+    private fun sendUpLeftDown() {
+        sendDownKey(KeyEvent.KEYCODE_DPAD_LEFT)
+        sendDownKey(KeyEvent.KEYCODE_DPAD_UP)
     }
 
-    private fun sendDownLeft() {
-        sendKey(KeyEvent.KEYCODE_DPAD_DOWN)
-        sendKey(KeyEvent.KEYCODE_DPAD_LEFT)
+    private fun sendUpRightDown() {
+        sendDownKey(KeyEvent.KEYCODE_DPAD_UP)
+        sendDownKey(KeyEvent.KEYCODE_DPAD_RIGHT)
     }
 
-    private fun sendDownRight() {
-        sendKey(KeyEvent.KEYCODE_DPAD_DOWN)
-        sendKey(KeyEvent.KEYCODE_DPAD_RIGHT)
+    private fun sendDownLeftDown() {
+        sendDownKey(KeyEvent.KEYCODE_DPAD_DOWN)
+        sendDownKey(KeyEvent.KEYCODE_DPAD_LEFT)
+    }
+
+    private fun sendDownRightDown() {
+        sendDownKey(KeyEvent.KEYCODE_DPAD_DOWN)
+        sendDownKey(KeyEvent.KEYCODE_DPAD_RIGHT)
+    }
+
+    private fun sendUpLeftUp() {
+        sendUpKey(KeyEvent.KEYCODE_DPAD_LEFT)
+        sendUpKey(KeyEvent.KEYCODE_DPAD_UP)
+    }
+
+    private fun sendUpRightUp() {
+        sendUpKey(KeyEvent.KEYCODE_DPAD_UP)
+        sendUpKey(KeyEvent.KEYCODE_DPAD_RIGHT)
+    }
+
+    private fun sendDownLeftUp() {
+        sendUpKey(KeyEvent.KEYCODE_DPAD_DOWN)
+        sendUpKey(KeyEvent.KEYCODE_DPAD_LEFT)
+    }
+
+    private fun sendDownRightUp() {
+        sendUpKey(KeyEvent.KEYCODE_DPAD_DOWN)
+        sendUpKey(KeyEvent.KEYCODE_DPAD_RIGHT)
     }
 
     private fun sendKey(key: Int?) {
@@ -311,24 +366,31 @@ class KeyHelper private constructor() : AnkoLogger {
         }
     }
 
+    private val mBus: FlowableProcessor<Any> = PublishProcessor.create<Any>().toSerialized()
 
-    private fun sendDownKey(key: Int) {
-        val keyEventDown = KeyEvent(KeyEvent.ACTION_DOWN, key)
-        pools.execute {
-            try {
+    init {
+        mBus.ofType(KeysEvent::class.java).observeOn(Schedulers.computation()).subscribe({
+            if (it.isDown) {
+                val keyEventDown = KeyEvent(KeyEvent.ACTION_DOWN, it.key)
                 init.sendKeySync(keyEventDown)
-            } catch (e: SecurityException) {
+            } else {
+                val keyEventUp = KeyEvent(KeyEvent.ACTION_UP, it.key)
+                init.sendKeySync(keyEventUp)
             }
+        }, {
+            it.printStackTrace()
+        })
+    }
+
+    private fun sendDownKey(key: Int?) {
+        key?.let {
+            SerializedSubscriber(mBus).onNext(KeysEvent(key,true))
         }
     }
 
-    private fun sendUpKey(key: Int) {
-        val keyEventUp = KeyEvent(KeyEvent.ACTION_UP, key)
-        pools.execute {
-            try {
-                init.sendKeySync(keyEventUp)
-            } catch (e: SecurityException) {
-            }
+    private fun sendUpKey(key: Int?) {
+        key?.let {
+            SerializedSubscriber(mBus).onNext(KeysEvent(key,false))
         }
     }
 

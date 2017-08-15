@@ -74,8 +74,8 @@ class ColorPickerPop(activity: Activity, v: View) : PopupWindow(), AnkoLogger {
             view.cb_circle.isChecked = false
             view.cb_square.isChecked = true
         }
-        view.txt_continue.text = "${data.speed}ms"
-        view.sb_continue.progress = data.speed.toInt()
+//        view.txt_continue.text = "${data.speed}ms"
+//        view.sb_continue.progress = data.speed.toInt()
     }
 
     fun copyData() {
@@ -146,16 +146,16 @@ class ColorPickerPop(activity: Activity, v: View) : PopupWindow(), AnkoLogger {
             }
         })
 
-        view.sb_continue.setOnSeekBarChangeListener(object :SeekBar.OnSeekBarChangeListener{
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                view.txt_continue.text = "${progress}ms"
-                data.speed = progress.toLong()
-            }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-            }
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-            }
-        })
+//        view.sb_continue.setOnSeekBarChangeListener(object :SeekBar.OnSeekBarChangeListener{
+//            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+//                view.txt_continue.text = "${progress}ms"
+//                data.speed = progress.toLong()
+//            }
+//            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+//            }
+//            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+//            }
+//        })
         view.cb_circle.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 data.shape = ButtonData.CIRCLE

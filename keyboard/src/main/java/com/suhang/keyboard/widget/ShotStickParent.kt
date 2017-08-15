@@ -10,12 +10,9 @@ import com.suhang.keyboard.FloatKeyboard
 import com.suhang.keyboard.R
 import com.suhang.keyboard.data.ButtonData
 import com.suhang.keyboard.utils.KeyHelper
-import io.reactivex.Flowable
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.info
-import java.util.concurrent.TimeUnit
 
 /**
  * Created by 苏杭 on 2017/8/14 12:06.
@@ -32,6 +29,7 @@ class ShotStickParent : FrameLayout, AnkoLogger {
         externalView.setBackgroundColor(color)
         innerView.setBackgroundColor(color)
     }
+
     enum class Direction {
         CENTER, RIGHT, LEFT, UP, DOWN, UP_RIGHT, UP_LEFT, DOWN_RIGHT, DOWN_LEFT
     }
@@ -41,7 +39,6 @@ class ShotStickParent : FrameLayout, AnkoLogger {
         if (key == R.id.data) {
             info(tag)
             data = tag as ButtonData
-            createTask()
         }
     }
 
@@ -56,7 +53,7 @@ class ShotStickParent : FrameLayout, AnkoLogger {
         innerView.isStroke = false
         addView(externalView)
         addView(innerView)
-//        background = ColorDrawable(resources.getColor(R.color.transparent))
+        background = ColorDrawable(resources.getColor(R.color.gray))
         post({
             val param = innerView.layoutParams as FrameLayout.LayoutParams
             innerView.layoutParams.width = width / 3
@@ -78,7 +75,7 @@ class ShotStickParent : FrameLayout, AnkoLogger {
                     var dy = centerY - y
                     val radius = 1.0f * width / 2 - 1.0f * width / 6
                     val slope = Math.sqrt(((dx * dx + dy * dy).toDouble()))
-                    if (Math.abs(dx) > width / 6 || Math.abs(dy) > height / 6) {
+                    if (Math.abs(dx) > width / 12 || Math.abs(dy) > height / 12) {
                         val proportion = radius / slope
                         val ddy = dy
                         val ddx = dx
@@ -106,8 +103,10 @@ class ShotStickParent : FrameLayout, AnkoLogger {
                         } else if (ratio >= -thresholdValue2 && ratio <= -thresholdValue1 && ddx < 0) {
                             direction = Direction.DOWN_LEFT
                         }
-                        info(direction)
                         if (direction != lastDirection) {
+                            info("last$lastDirection   now$direction")
+                            up(lastDirection)
+                            down()
                             listener?.onStatusChanger(direction)
                         }
                         lastDirection = direction
@@ -116,12 +115,18 @@ class ShotStickParent : FrameLayout, AnkoLogger {
                 MotionEvent.ACTION_UP -> {
                     innerView.translationX = 0f
                     innerView.translationY = 0f
+                    info("aaa$direction")
+                    up(direction)
                     direction = Direction.CENTER
+                    lastDirection= Direction.CENTER
                 }
                 MotionEvent.ACTION_CANCEL -> {
                     innerView.translationX = 0f
                     innerView.translationY = 0f
+                    info("aaa$direction")
+                    up(direction)
                     direction = Direction.CENTER
+                    lastDirection= Direction.CENTER
                 }
             }
             !FloatKeyboard.isEdit
@@ -133,43 +138,66 @@ class ShotStickParent : FrameLayout, AnkoLogger {
         dispose?.dispose()
     }
 
-    fun createTask() {
-        dispose = Flowable.interval(data.speed, data.speed, TimeUnit.MILLISECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe({
-            when (direction) {
-                Direction.CENTER->{
-
-                }
-                Direction.RIGHT -> {
-                    KeyHelper.instance().send("→")
-                }
-                Direction.LEFT -> {
-                    KeyHelper.instance().send("←")
-                }
-
-                Direction.UP -> {
-                    KeyHelper.instance().send("↑")
-                }
-
-                Direction.DOWN -> {
-                    KeyHelper.instance().send("↓")
-                }
-
-                Direction.UP_LEFT -> {
-                    KeyHelper.instance().send("↖")
-                }
-
-                Direction.UP_RIGHT -> {
-                    KeyHelper.instance().send("↗")
-                }
-
-                Direction.DOWN_LEFT -> {
-                    KeyHelper.instance().send("↙")
-                }
-                Direction.DOWN_RIGHT -> {
-                    KeyHelper.instance().send("↘")
-                }
+    fun down() {
+        when (direction) {
+            Direction.CENTER -> {
             }
-        })
+            Direction.RIGHT -> {
+                KeyHelper.instance().sendDown("→")
+            }
+            Direction.LEFT -> {
+                KeyHelper.instance().sendDown("←")
+            }
+            Direction.UP -> {
+                KeyHelper.instance().sendDown("↑")
+            }
+            Direction.DOWN -> {
+                KeyHelper.instance().sendDown("↓")
+            }
+            Direction.UP_LEFT -> {
+                KeyHelper.instance().sendDown("↖")
+            }
+            Direction.UP_RIGHT -> {
+                KeyHelper.instance().sendDown("↗")
+            }
+            Direction.DOWN_LEFT -> {
+                KeyHelper.instance().sendDown("↙")
+            }
+            Direction.DOWN_RIGHT -> {
+                KeyHelper.instance().sendDown("↘")
+            }
+        }
+    }
+
+    fun up(direction: Direction) {
+        when (direction) {
+            Direction.CENTER -> {
+            }
+            Direction.RIGHT -> {
+                KeyHelper.instance().sendUp("→")
+            }
+            Direction.LEFT -> {
+                KeyHelper.instance().sendUp("←")
+            }
+            Direction.UP -> {
+                KeyHelper.instance().sendUp("↑")
+            }
+            Direction.DOWN -> {
+                KeyHelper.instance().sendUp("↓")
+            }
+            Direction.UP_LEFT -> {
+                KeyHelper.instance().sendUp("↖")
+            }
+            Direction.UP_RIGHT -> {
+                KeyHelper.instance().sendUp("↗")
+            }
+            Direction.DOWN_LEFT -> {
+                KeyHelper.instance().sendUp("↙")
+            }
+            Direction.DOWN_RIGHT -> {
+                KeyHelper.instance().sendUp("↘")
+            }
+        }
     }
 
     private var listener: OnStatusChangedLisenter? = null

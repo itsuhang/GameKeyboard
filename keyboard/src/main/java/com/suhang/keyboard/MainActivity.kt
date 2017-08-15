@@ -11,10 +11,13 @@ import android.os.Environment
 import android.os.IBinder
 import android.support.v7.app.AppCompatActivity
 import android.view.Gravity
+import android.view.KeyEvent
+import android.view.MotionEvent
 import android.view.inputmethod.InputMethodManager
 import com.suhang.keyboard.constants.Constant
 import com.suhang.keyboard.event.ClickEvent
 import com.suhang.keyboard.event.InViewEvent
+import com.suhang.keyboard.utils.KeyHelper
 import com.suhang.keyboard.utils.SharedPrefUtil
 import com.suhang.keyboard.widget.ColorPickerPop
 import com.suhang.keyboard.widget.SaveStyleDialog
