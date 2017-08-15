@@ -90,14 +90,22 @@ class MoveButton : TextView, AnkoLogger {
 
     fun down() {
         val s = text.toString()
+        val key = data.combinationKey
+        if (key != null && !key.isBlank() && key.contains("%%%")) {
+            val split = key.split("%%%")
+            split.forEach {
+                KeyHelper.instance().sendDown(it)
+            }
+            return
+        }
         if ("KEY" == s) {
             showKeyboard()
         } else {
             val send = KeyHelper.instance().sendDown(s)
             if (send == KeyHelper.STATUS_ON) {
-                RxBusSingle.instance().post(SpecialKeyEvent(s,true))
+                RxBusSingle.instance().post(SpecialKeyEvent(s, true))
             } else if (send == KeyHelper.STATUS_OFF) {
-                RxBusSingle.instance().post(SpecialKeyEvent(s,false))
+                RxBusSingle.instance().post(SpecialKeyEvent(s, false))
             } else if (send == KeyHelper.STATUS_MANAGER) {
                 if (KeyHelper.instance().isOn(KeyMap.MANAGER_ST)) {
                     RxBusSingle.instance().post(TransparentEvent(true))
@@ -117,7 +125,7 @@ class MoveButton : TextView, AnkoLogger {
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     context.startActivity(intent)
                 } catch (e: ActivityNotFoundException) {
-                    Toast.makeText(context,"没有找到与本软件匹配的的Exagear程序!",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "没有找到与本软件匹配的的Exagear程序!", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -125,6 +133,14 @@ class MoveButton : TextView, AnkoLogger {
 
     fun up() {
         val s = text.toString()
+        val key = data.combinationKey
+        if (key != null && !key.isBlank() && key.contains("%%%")) {
+            val split = key.split("%%%")
+            split.forEach {
+                KeyHelper.instance().sendUp(it)
+            }
+            return
+        }
         if ("KEY" != s) {
             KeyHelper.instance().sendUp(s)
         }

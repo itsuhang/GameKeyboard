@@ -1,7 +1,6 @@
 package com.suhang.keyboard
 
 import android.content.Context
-import android.content.Intent
 import android.graphics.PixelFormat
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.StateListDrawable
@@ -12,9 +11,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.view.WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-import android.view.inputmethod.InputMethodManager
 import android.widget.FrameLayout
-import android.widget.TextView
 import android.widget.Toast
 import com.google.gson.Gson
 import com.suhang.keyboard.constants.Constant.Companion.LOCAL_SAVE
@@ -47,7 +44,6 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
     var mTouchStartY = 0
     var startX = 0
     var startY = 0
-    val handler = Handler()
     override fun onTouch(v: View, event: MotionEvent): Boolean {
         // 获取相对屏幕的坐标，即以屏幕左上角为原点
         val x = event.rawX.toInt()
@@ -119,6 +115,7 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
     var deleteEvent: Disposable? = null
     var selectEvent: Disposable? = null
     var transparentEvent: Disposable? = null
+    var combinationEvent: Disposable? = null
 
     init {
         commonWidth = context.resources.getDimension(R.dimen.default_width).toInt()
@@ -137,6 +134,9 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
         deleteEvent = RxBusSingle.instance().toFlowable(DeleteEvent::class.java).observeOn(AndroidSchedulers.mainThread()).subscribe({
             deleteKey(it.v)
             saveButtonToLocal()
+        })
+        combinationEvent = RxBusSingle.instance().toFlowable(CombinationEvent::class.java).observeOn(AndroidSchedulers.mainThread()).subscribe({
+            addKey(it.key,it.combinationKey)
         })
         selectEvent = RxBusSingle.instance().toFlowable(SelectFileEvent::class.java).observeOn(AndroidSchedulers.mainThread()).subscribe({
             views.values.forEach {
@@ -271,7 +271,18 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
      * 添加按键
      */
     fun addKey(key: String) {
-        val data = createButtonData(key)
+        val data = createButtonData(key, "")
+        data?.let {
+            mWm.addView(it, it.tag as WindowManager.LayoutParams)
+            saveButtonToLocal()
+        }
+    }
+
+    /**
+     * 添加按键
+     */
+    fun addKey(key: String, combinationKey: String) {
+        val data = createButtonData(key, combinationKey)
         data?.let {
             mWm.addView(it, it.tag as WindowManager.LayoutParams)
             saveButtonToLocal()
@@ -352,9 +363,8 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
     /**
      * 创建按钮数据
      */
-    fun createButtonData(key: String): View? {
+    fun createButtonData(key: String, combinationKey: String): View? {
         if (key == KeyMap.MANAGER_ST && views[KeyMap.MANAGER_ST] != null) {
-//            Toast.makeText(mContext,"该按键为控制键,只能有一个",Toast.LENGTH_SHORT).show()
             return null
         }
         var data: ButtonData? = null
@@ -367,7 +377,7 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
             Toast.makeText(mContext, "按键重复添加!!!", Toast.LENGTH_SHORT).show()
             return null
         }
-        val buttonData = ButtonData(key, commonWidth, commonHeight, 0, 0, 12, mContext.resources.getColor(R.color.gray), 1.0f, ButtonData.SQUARE, MoveButton.INTERVAL_TIME)
+        val buttonData = ButtonData(key, commonWidth, commonHeight, 0, 0, 12, mContext.resources.getColor(R.color.gray), 1.0f, ButtonData.SQUARE, MoveButton.INTERVAL_TIME,combinationKey)
         val param = getLayoutParam()
         val button = View.inflate(mContext, R.layout.keyboard, null)
         if (key == KeyMap.MANAGER_STICK) {
@@ -468,6 +478,7 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
         deleteEvent?.dispose()
         selectEvent?.dispose()
         transparentEvent?.dispose()
+        combinationEvent?.dispose()
         KeyHelper.instance().reInit()
     }
 }

@@ -19,10 +19,7 @@ import com.suhang.keyboard.event.ClickEvent
 import com.suhang.keyboard.event.InViewEvent
 import com.suhang.keyboard.utils.KeyHelper
 import com.suhang.keyboard.utils.SharedPrefUtil
-import com.suhang.keyboard.widget.ColorPickerPop
-import com.suhang.keyboard.widget.SaveStyleDialog
-import com.suhang.keyboard.widget.SelectButtonPop
-import com.suhang.keyboard.widget.SelectStyleDialog
+import com.suhang.keyboard.widget.*
 import com.suhang.networkmvp.function.rx.RxBusSingle
 import com.tbruyelle.rxpermissions2.RxPermissions
 import io.reactivex.disposables.Disposable
@@ -40,6 +37,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     private var move: IMove? = null
     private lateinit var pop: SelectButtonPop
     private var colorPop: ColorPickerPop? = null
+    private lateinit var combinationPop: CombinationKeyPop
     private lateinit var saveDialog: SaveStyleDialog
     private lateinit var loadDialog: SelectStyleDialog
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,6 +45,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         setContentView(R.layout.activity_main)
         checkBox.isChecked = SharedPrefUtil.getBoolean(Constant.CHECK_STATUS, false)
         pop = SelectButtonPop(this, SelectButtonPop.STATUS_ONE)
+        combinationPop = CombinationKeyPop(this)
         saveDialog = SaveStyleDialog(this)
         loadDialog = SelectStyleDialog(this)
         manager = applicationContext.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -59,6 +58,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         pop.onConfigChanged(newConfig.orientation)
+        combinationPop.onConfigChanged(newConfig.orientation)
     }
 
     inner class MyConnect : ServiceConnection {
@@ -130,6 +130,15 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                 }
             })
         }
+
+        combinationPop.setOnDismissListener {
+            move?.setVisible(true)
+        }
+
+        btn_combination.setOnClickListener {
+            move?.setVisible(false)
+            combinationPop.showAtLocation(contentView,Gravity.BOTTOM,0,0)
+        }
         saveDialog.setOnDismissListener {
             move?.setVisible(true)
         }
@@ -158,8 +167,9 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
 
     override fun onBackPressed() {
         val color: ColorPickerPop? = colorPop
-        if (pop.isShowing) {
+        if (pop.isShowing||combinationPop.isShowing) {
             pop.dismiss()
+            combinationPop.dismiss()
         } else if (color != null && color.isShowing) {
             color.dismiss()
         } else {

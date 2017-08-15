@@ -104,7 +104,6 @@ class ShotStickParent : FrameLayout, AnkoLogger {
                             direction = Direction.DOWN_LEFT
                         }
                         if (direction != lastDirection) {
-                            info("last$lastDirection   now$direction")
                             up(lastDirection)
                             down()
                             listener?.onStatusChanger(direction)
@@ -115,7 +114,6 @@ class ShotStickParent : FrameLayout, AnkoLogger {
                 MotionEvent.ACTION_UP -> {
                     innerView.translationX = 0f
                     innerView.translationY = 0f
-                    info("aaa$direction")
                     up(direction)
                     direction = Direction.CENTER
                     lastDirection= Direction.CENTER
@@ -123,7 +121,6 @@ class ShotStickParent : FrameLayout, AnkoLogger {
                 MotionEvent.ACTION_CANCEL -> {
                     innerView.translationX = 0f
                     innerView.translationY = 0f
-                    info("aaa$direction")
                     up(direction)
                     direction = Direction.CENTER
                     lastDirection= Direction.CENTER
