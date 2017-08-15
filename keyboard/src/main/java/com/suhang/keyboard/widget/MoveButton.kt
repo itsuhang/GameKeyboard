@@ -115,6 +115,7 @@ class MoveButton : TextView, AnkoLogger {
             } else if (send == KeyHelper.STATUS_HOME) {
                 val intent = Intent()
                 intent.action = Intent.ACTION_MAIN
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 intent.addCategory(Intent.CATEGORY_HOME)
                 context.startActivity(intent)
             } else if (send == KeyHelper.STATUS_RETURN) {
