@@ -2,11 +2,6 @@ package com.suhang.keyboard.utils
 
 import android.app.Instrumentation
 import android.view.KeyEvent
-import com.suhang.keyboard.event.KeysEvent
-import io.reactivex.processors.FlowableProcessor
-import io.reactivex.processors.PublishProcessor
-import io.reactivex.schedulers.Schedulers
-import io.reactivex.subscribers.SerializedSubscriber
 import org.jetbrains.anko.AnkoLogger
 import java.util.concurrent.Executors
 
@@ -366,31 +361,28 @@ class KeyHelper private constructor() : AnkoLogger {
         }
     }
 
-    private val mBus: FlowableProcessor<Any> = PublishProcessor.create<Any>().toSerialized()
-
-    init {
-        mBus.ofType(KeysEvent::class.java).observeOn(Schedulers.computation()).subscribe({
-            if (it.isDown) {
-                val keyEventDown = KeyEvent(KeyEvent.ACTION_DOWN, it.key)
-                init.sendKeySync(keyEventDown)
-            } else {
-                val keyEventUp = KeyEvent(KeyEvent.ACTION_UP, it.key)
-                init.sendKeySync(keyEventUp)
-            }
-        }, {
-            it.printStackTrace()
-        })
-    }
 
     private fun sendDownKey(key: Int?) {
         key?.let {
-            SerializedSubscriber(mBus).onNext(KeysEvent(key,true))
+            pools.execute {
+                val keyEventDown = KeyEvent(KeyEvent.ACTION_DOWN, key)
+                try {
+                    init.sendKeySync(keyEventDown)
+                } catch (e: Exception) {
+                }
+            }
         }
     }
 
     private fun sendUpKey(key: Int?) {
         key?.let {
-            SerializedSubscriber(mBus).onNext(KeysEvent(key,false))
+            pools.execute {
+                val keyEventUp = KeyEvent(KeyEvent.ACTION_UP, key)
+                try {
+                    init.sendKeySync(keyEventUp)
+                } catch (e: Exception) {
+                }
+            }
         }
     }
 

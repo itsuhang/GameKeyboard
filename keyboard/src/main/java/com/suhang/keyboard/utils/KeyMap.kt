@@ -21,7 +21,7 @@ class KeyMap {
         const val MANAGER_ST = "●"
         const val MANAGER_BACK = "◁"
         const val MANAGER_HOME = "〇"
-        const val MANAGER_RETURN = "☢"
+//        const val MANAGER_RETURN = "☢"
         const val MANAGER_STICK = "摇杆"
 
         fun isSpecalKey(key:String): Boolean {
@@ -198,7 +198,7 @@ class KeyMap {
                 put(MANAGER_STICK, MANAGER_STICK_CODE)
                 put(MANAGER_BACK, KeyEvent.KEYCODE_BACK)
                 put(MANAGER_HOME, KeyEvent.KEYCODE_HOME)
-                put(MANAGER_RETURN, MANAGER_RETURN_CODE)
+//                put(MANAGER_RETURN, MANAGER_RETURN_CODE)
             }
             keySpecialMap.run {
                 put("NLC", KeyEvent.KEYCODE_NUM_LOCK)

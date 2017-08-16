@@ -23,6 +23,7 @@
         android:theme="@style/AppTheme"
         tools:ignore="HardcodedDebugMode">
         <activity
+            android:launchMode="singleInstance"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:name=".MainActivity"
             >
