@@ -5,9 +5,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import com.suhang.keyboard.R
-import com.suhang.keyboard.event.ClickEvent
-import com.suhang.keyboard.event.PClickEvent
-import com.suhang.keyboard.utils.KeyHelper
 import com.suhang.keyboard.utils.KeyMap
 import kotlinx.android.synthetic.main.select_button_item.view.*
 import java.lang.StringBuilder
@@ -34,9 +31,9 @@ class GroupButtonAdapter : RecyclerView.Adapter<GroupButtonAdapter.Holder>() {
                     "KEY"->{
                         Toast.makeText(holder.itemView.context,"不能选择该按键",Toast.LENGTH_SHORT).show()
                     }
-                    KeyMap.MANAGER_RETURN->{
-                        Toast.makeText(holder.itemView.context,"不能选择该按键",Toast.LENGTH_SHORT).show()
-                    }
+//                    KeyMap.MANAGER_RETURN->{
+//                        Toast.makeText(holder.itemView.context,"不能选择该按键",Toast.LENGTH_SHORT).show()
+//                    }
                     KeyMap.MANAGER_HOME->{
                         Toast.makeText(holder.itemView.context,"不能选择该按键",Toast.LENGTH_SHORT).show()
                     }

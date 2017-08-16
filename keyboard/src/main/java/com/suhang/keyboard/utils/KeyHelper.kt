@@ -155,9 +155,9 @@ class KeyHelper private constructor() : AnkoLogger {
                     desc = "管理键(隐藏和显示其他按键)"
                 }
 
-                KeyMap.MANAGER_RETURN -> {
-                    desc = "回到Exagear"
-                }
+//                KeyMap.MANAGER_RETURN -> {
+//                    desc = "回到Exagear"
+//                }
 
             }
             return desc
