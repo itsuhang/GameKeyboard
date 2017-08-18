@@ -21,8 +21,30 @@ class KeyMap {
         const val MANAGER_ST = "●"
         const val MANAGER_BACK = "◁"
         const val MANAGER_HOME = "〇"
-//        const val MANAGER_RETURN = "☢"
+        const val MANAGER_RETURN = "☢"
         const val MANAGER_STICK = "摇杆"
+        const val MANAGER_SOFT = "KEY"
+
+        fun isCustomKey(key: String): Boolean {
+            when (key) {
+                MANAGER_ST->{
+                    return true
+                }
+                MANAGER_SOFT->{
+                    return true
+                }
+                MANAGER_HOME->{
+                    return true
+                }
+                MANAGER_RETURN->{
+                    return true
+                }
+                MANAGER_STICK->{
+                    return true
+                }
+            }
+            return false
+        }
 
         fun isSpecalKey(key:String): Boolean {
             val letter = key.toLowerCase()
@@ -193,12 +215,12 @@ class KeyMap {
                 put("shl", KeyEvent.KEYCODE_SHIFT_LEFT)
                 put("CTR", KeyEvent.KEYCODE_CTRL_LEFT)
                 put("ctl", KeyEvent.KEYCODE_CTRL_LEFT)
-                put("KEY", KEYBOARD)
+                put(MANAGER_SOFT, KEYBOARD)
                 put(MANAGER_ST, MANAGER)
                 put(MANAGER_STICK, MANAGER_STICK_CODE)
                 put(MANAGER_BACK, KeyEvent.KEYCODE_BACK)
                 put(MANAGER_HOME, KeyEvent.KEYCODE_HOME)
-//                put(MANAGER_RETURN, MANAGER_RETURN_CODE)
+                put(MANAGER_RETURN, MANAGER_RETURN_CODE)
             }
             keySpecialMap.run {
                 put("NLC", KeyEvent.KEYCODE_NUM_LOCK)

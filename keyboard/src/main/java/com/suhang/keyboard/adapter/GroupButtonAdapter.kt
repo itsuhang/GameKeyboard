@@ -28,7 +28,7 @@ class GroupButtonAdapter : RecyclerView.Adapter<GroupButtonAdapter.Holder>() {
                 Toast.makeText(holder.itemView.context, "不能选择该按键", Toast.LENGTH_SHORT).show()
             } else {
                 when(text){
-                    "KEY"->{
+                    KeyMap.MANAGER_SOFT->{
                         Toast.makeText(holder.itemView.context,"不能选择该按键",Toast.LENGTH_SHORT).show()
                     }
 //                    KeyMap.MANAGER_RETURN->{

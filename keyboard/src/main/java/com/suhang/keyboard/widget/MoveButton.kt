@@ -98,7 +98,7 @@ class MoveButton : TextView, AnkoLogger {
             }
             return
         }
-        if ("KEY" == s) {
+        if (KeyMap.MANAGER_SOFT == s) {
             showKeyboard()
         } else {
             val send = KeyHelper.instance().sendDown(s)
@@ -142,7 +142,7 @@ class MoveButton : TextView, AnkoLogger {
             }
             return
         }
-        if ("KEY" != s) {
+        if (!KeyMap.isCustomKey(s)) {
             KeyHelper.instance().sendUp(s)
         }
     }

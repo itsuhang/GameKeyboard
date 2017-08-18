@@ -248,7 +248,6 @@ class KeyHelper private constructor() : AnkoLogger {
             KeyMap.MANAGER_STICK_CODE -> {
             }
 
-
             KeyMap.MANAGER_RETURN_CODE -> {
                 return STATUS_RETURN
             }
