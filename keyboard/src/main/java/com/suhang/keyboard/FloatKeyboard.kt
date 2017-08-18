@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.PixelFormat
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.StateListDrawable
-import android.os.Handler
 import android.support.v7.widget.CardView
 import android.view.Gravity
 import android.view.MotionEvent
@@ -116,6 +115,7 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
     var selectEvent: Disposable? = null
     var transparentEvent: Disposable? = null
     var combinationEvent: Disposable? = null
+    var allEditEvent: Disposable? = null
 
     init {
         commonWidth = context.resources.getDimension(R.dimen.default_width).toInt()
@@ -136,7 +136,26 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
             saveButtonToLocal()
         })
         combinationEvent = RxBusSingle.instance().toFlowable(CombinationEvent::class.java).observeOn(AndroidSchedulers.mainThread()).subscribe({
-            addKey(it.key,it.combinationKey)
+            addKey(it.key, it.combinationKey)
+        })
+
+        allEditEvent = RxBusSingle.instance().toFlowable(AllEditEvent::class.java).observeOn(AndroidSchedulers.mainThread()).subscribe({
+            val data = it.data
+            datas.forEach {
+                it.fontSize = data.fontSize
+                it.shape = data.shape
+                it.alpha = data.alpha
+                it.width = data.width
+                it.height = data.height
+            }
+
+            views.values.forEach {
+                it.forEach {
+                    if (it.stick.visibility == View.GONE) {
+                        editKey(it)
+                    }
+                }
+            }
         })
         selectEvent = RxBusSingle.instance().toFlowable(SelectFileEvent::class.java).observeOn(AndroidSchedulers.mainThread()).subscribe({
             views.values.forEach {
@@ -377,7 +396,7 @@ class FloatKeyboard(context: Context) : AnkoLogger, MoveButton.OnContinueClickLi
             Toast.makeText(mContext, "按键重复添加!!!", Toast.LENGTH_SHORT).show()
             return null
         }
-        val buttonData = ButtonData(key, commonWidth, commonHeight, 0, 0, 12, mContext.resources.getColor(R.color.gray), 1.0f, ButtonData.SQUARE, MoveButton.INTERVAL_TIME,combinationKey)
+        val buttonData = ButtonData(key, commonWidth, commonHeight, 0, 0, 12, mContext.resources.getColor(R.color.gray), 1.0f, ButtonData.SQUARE, MoveButton.INTERVAL_TIME, combinationKey)
         val param = getLayoutParam()
         val button = View.inflate(mContext, R.layout.keyboard, null)
         if (key == KeyMap.MANAGER_STICK) {

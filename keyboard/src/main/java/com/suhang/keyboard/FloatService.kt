@@ -10,6 +10,7 @@ import kotlin.properties.Delegates
 class FloatService : Service() {
     companion object{
         var isCheck = false
+        var canVibrate = false
     }
     var isEdit by Delegates.observable(false, {
         _, _, new ->

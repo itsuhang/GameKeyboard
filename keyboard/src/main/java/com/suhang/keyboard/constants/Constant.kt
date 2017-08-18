@@ -6,6 +6,7 @@ package com.suhang.keyboard.constants
 class Constant {
     companion object{
         const val CHECK_STATUS:String = "check_status"
+        const val VIBRATE_STATUS:String = "vibrate_status"
         const val LOCAL_SAVE:String = "local_save"
     }
 }

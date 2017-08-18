@@ -14,6 +14,7 @@ import android.view.Gravity
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import com.suhang.keyboard.constants.Constant
 import com.suhang.keyboard.event.ClickEvent
 import com.suhang.keyboard.event.InViewEvent
@@ -37,6 +38,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     private var move: IMove? = null
     private lateinit var pop: SelectButtonPop
     private var colorPop: ColorPickerPop? = null
+    private lateinit var allStylePop: AllAdjustPop
     private lateinit var combinationPop: CombinationKeyPop
     private lateinit var saveDialog: SaveStyleDialog
     private lateinit var loadDialog: SelectStyleDialog
@@ -44,10 +46,12 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         checkBox.isChecked = SharedPrefUtil.getBoolean(Constant.CHECK_STATUS, false)
+        cb_vibrate.isChecked = SharedPrefUtil.getBoolean(Constant.VIBRATE_STATUS, false)
         pop = SelectButtonPop(this, SelectButtonPop.STATUS_ONE)
         combinationPop = CombinationKeyPop(this)
         saveDialog = SaveStyleDialog(this)
         loadDialog = SelectStyleDialog(this)
+        allStylePop = AllAdjustPop(this)
         manager = applicationContext.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         startService<FloatService>()
         val intent = Intent(this, FloatService::class.java)
@@ -68,6 +72,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             move = IMove.Stub.asInterface(service)
             move?.check(checkBox.isChecked)
+            FloatService.canVibrate = cb_vibrate.isChecked
         }
     }
 
@@ -102,6 +107,11 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             move?.check(isChecked)
         }
 
+        cb_vibrate.setOnCheckedChangeListener { _, isChecked ->
+            SharedPrefUtil.putBoolean(Constant.VIBRATE_STATUS, isChecked)
+            FloatService.canVibrate = isChecked
+        }
+
         btn_add.setOnClickListener {
             move?.setVisible(false)
             pop.showAtLocation(contentView, Gravity.BOTTOM, 0, 0)
@@ -131,13 +141,27 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             })
         }
 
+
+        allStylePop.setOnDismissListener {
+            move?.setVisible(true)
+        }
+        btn_style.setOnClickListener {
+            val edit = move?.isEdit!!
+            if (!edit) {
+                toast("请打开编辑模式")
+                return@setOnClickListener
+            }
+            move?.setVisible(false)
+            allStylePop.showAtLocation(contentView,Gravity.NO_GRAVITY,0,0)
+        }
+
         combinationPop.setOnDismissListener {
             move?.setVisible(true)
         }
 
         btn_combination.setOnClickListener {
             move?.setVisible(false)
-            combinationPop.showAtLocation(contentView,Gravity.BOTTOM,0,0)
+            combinationPop.showAtLocation(contentView, Gravity.BOTTOM, 0, 0)
         }
         saveDialog.setOnDismissListener {
             move?.setVisible(true)
@@ -167,9 +191,10 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
 
     override fun onBackPressed() {
         val color: ColorPickerPop? = colorPop
-        if (pop.isShowing||combinationPop.isShowing) {
+        if (pop.isShowing || combinationPop.isShowing||allStylePop.isShowing) {
             pop.dismiss()
             combinationPop.dismiss()
+            allStylePop.dismiss()
         } else if (color != null && color.isShowing) {
             color.dismiss()
         } else {
@@ -187,6 +212,9 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         super.onDestroy()
         unbindService(connect)
         pop.dismiss()
+        if (allStylePop.isShowing) {
+            allStylePop.dismiss()
+        }
         val color: ColorPickerPop? = colorPop
         if (color != null && color.isShowing) {
             color.dismiss()

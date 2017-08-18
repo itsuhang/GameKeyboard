@@ -3,6 +3,7 @@ package com.suhang.keyboard.widget
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.os.Vibrator
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
@@ -10,6 +11,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import android.widget.Toast
 import com.suhang.keyboard.FloatKeyboard
+import com.suhang.keyboard.FloatService
 import com.suhang.keyboard.R
 import com.suhang.keyboard.data.ButtonData
 import com.suhang.keyboard.event.SpecialKeyEvent
@@ -31,6 +33,7 @@ class MoveButton : TextView, AnkoLogger {
         val INTERVAL_TIME: Long = 200
     }
 
+    val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
     private var dispose: Disposable? = null
 
     constructor(context: Context) : super(context)
@@ -67,6 +70,9 @@ class MoveButton : TextView, AnkoLogger {
             super.onTouchEvent(event)
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
+                    if (FloatService.canVibrate) {
+                        vibrator.vibrate(30)
+                    }
                     down()
                 }
                 MotionEvent.ACTION_UP -> {

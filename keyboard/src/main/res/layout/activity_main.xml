@@ -15,7 +15,7 @@
         android:text="保存键盘"
         app:layout_constraintLeft_toLeftOf="@+id/btn_close"
         android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/checkBox"/>
+        app:layout_constraintBottom_toTopOf="@+id/cb_vibrate"/>
 
     <Button
         android:id="@+id/btn_edit"
@@ -69,7 +69,7 @@
         android:layout_marginBottom="8dp"
         android:layout_marginRight="0dp"
         android:text="读取键盘"
-        app:layout_constraintBottom_toTopOf="@+id/checkBox"
+        app:layout_constraintBottom_toTopOf="@+id/cb_vibrate"
         app:layout_constraintRight_toRightOf="@+id/btn_add"/>
 
     <Button
@@ -80,8 +80,32 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:text="添加组合键"
-        app:layout_constraintBottom_toTopOf="@+id/checkBox"
+        app:layout_constraintBottom_toTopOf="@+id/cb_vibrate"
         app:layout_constraintLeft_toRightOf="@+id/btn_save"
         app:layout_constraintRight_toLeftOf="@+id/btn_load"/>
+
+    <Button
+        android:id="@+id/btn_style"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:text="整体样式"
+        app:layout_constraintBottom_toTopOf="@+id/btn_combination"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"/>
+
+    <CheckBox
+        android:id="@+id/cb_vibrate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:text="按键震动"
+        app:layout_constraintBottom_toTopOf="@+id/checkBox"
+        app:layout_constraintLeft_toLeftOf="@+id/checkBox"
+        app:layout_constraintRight_toRightOf="@+id/checkBox"/>
 
 </android.support.constraint.ConstraintLayout>
